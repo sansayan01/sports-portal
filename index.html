@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#F1EFE9">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="color-scheme" content="light">
+  <title>বার্ষিক ক্রীড়া প্রতিযোগিতা</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ===== ICON SPRITE ===== -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.4 12 3.5l8.5 6.9V20a1 1 0 0 1-1 1h-5v-6.5h-5V21h-5a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-1.8a3.8 3.8 0 0 0-3.8-3.8H7.2a3.8 3.8 0 0 0-3.8 3.8V21"/><circle cx="9.7" cy="7.2" r="3.7"/><path d="M20.6 21v-1.8a3.8 3.8 0 0 0-2.9-3.7"/><path d="M15.4 3.7a3.7 3.7 0 0 1 0 7.1"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v4.5a4 4 0 0 1-8 0z"/><path d="M8 5.5H5.4a1.4 1.4 0 0 0 0 2.8h.4A3.6 3.6 0 0 0 9.2 11"/><path d="M16 5.5h2.6a1.4 1.4 0 0 1 0 2.8h-.4A3.6 3.6 0 0 1 14.8 11"/><path d="M12 12.5V16"/><path d="M8.5 20.5h7"/><path d="M10 16h4l1 4.5H9z"/></symbol>
+    <symbol id="i-medal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14.5" r="5.5"/><path d="m8.6 9.7-2.2-6.2h11.2l-2.2 6.2"/><path d="m12 12.3.9 1.8 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="5" r="1.7"/><circle cx="12" cy="5" r="1.7"/><circle cx="19" cy="5" r="1.7"/><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/><circle cx="5" cy="19" r="1.7"/><circle cx="12" cy="19" r="1.7"/><circle cx="19" cy="19" r="1.7"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17l-6.4 7.6v5.3l-4.2 2v-7.3z"/></symbol>
+    <symbol id="i-school" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V9.5l7-4.5 7 4.5V21"/><path d="M9.5 21v-5h5v5"/><path d="M9.5 11h1M13.5 11h1"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h11l-1.5 4L16 12H5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5.2l3.4 2"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 15.6 15.6 3.5l4.9 4.9L8.4 20.5z"/><path d="m7 12 2 2M10 9l2 2M13 6l2 2"/></symbol>
+    <symbol id="i-height" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m8 7 4-4 4 4M8 17l4 4 4-4"/><path d="M4 21h4M16 21h4"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-user-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-1.8a3.8 3.8 0 0 0-3.8-3.8H6.8A3.8 3.8 0 0 0 3 19.2V21"/><circle cx="9" cy="7.2" r="3.7"/><path d="M19 8v6M22 11h-6"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9V3.5h11V9"/><path d="M6.5 18H4.5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h15a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6.5" y="14" width="11" height="6.5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 19.5h16"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M4 19.5h16"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5S9.6 5.9 12 3.5z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 12.5 5 5 10-11"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4 13.2h6l-1.5 8.8L19 10.5h-6.2z"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V10a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="3.5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="3.5" cy="18" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-arrow-up-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></symbol>
+  </svg>
+
+  <div class="app">
+
+    <!-- ===== APP BAR ===== -->
+    <header class="appbar">
+      <button id="btnBack" class="appbar-back" hidden aria-label="Back">
+        <svg class="ic" viewBox="0 0 24 24"><use href="#i-back"/></svg>
+      </button>
+      <div class="appbar-titles">
+        <div class="appbar-eyebrow" id="appBarEyebrow">SCHOOL SPORTS DESK</div>
+        <div id="appBarTitle" class="appbar-title">বার্ষিক ক্রীড়া প্রতিযোগিতা</div>
+      </div>
+      <div class="appbar-badge" aria-hidden="true">
+        <svg class="ic" viewBox="0 0 24 24"><use href="#i-bolt"/></svg>
+      </div>
+    </header>
+
+    <!-- ===== CONTENT ===== -->
+    <main class="app-content" id="appContent">
+
+      <!-- HOME -->
+      <section id="screen-home" class="screen active">
+        <div class="hero season-card">
+          <div class="hero-lanes"></div>
+          <svg class="hero-watermark" viewBox="0 0 24 24"><use href="#i-trophy"/></svg>
+          <div class="hero-top">
+            <span class="hero-eyebrow" data-i18n="home.seasonLabel">SEASON SCOREBOARD</span>
+            <span class="hero-live"><span class="live-dot"></span><span data-i18n="home.live">লোকাল ডেটা</span></span>
+          </div>
+          <div class="hero-num" id="heroStudents">0</div>
+          <div class="hero-label" data-i18n="home.heroLabel">মোট শিক্ষার্থী</div>
+          <div class="hero-sub" id="heroSub"></div>
+        </div>
+
+        <div class="stat-grid stat-grid-4">
+          <div class="stat-card">
+            <span class="stat-ico blue"><svg class="ic" viewBox="0 0 24 24"><use href="#i-school"/></svg></span>
+            <div class="stat-num" id="statSchools">0</div>
+            <div class="stat-lbl" data-i18n="dash.schools">স্কুল</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-ico orange"><svg class="ic" viewBox="0 0 24 24"><use href="#i-calendar"/></svg></span>
+            <div class="stat-num" id="statEvents">0</div>
+            <div class="stat-lbl" data-i18n="dash.events">ইভেন্ট</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-ico green"><svg class="ic" viewBox="0 0 24 24"><use href="#i-flag"/></svg></span>
+            <div class="stat-num" id="statGames">0</div>
+            <div class="stat-lbl" data-i18n="dash.games">গেম</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-ico purple"><svg class="ic" viewBox="0 0 24 24"><use href="#i-users"/></svg></span>
+            <div class="stat-num" id="statEntries">0</div>
+            <div class="stat-lbl" data-i18n="dash.entries">এন্ট্রি</div>
+          </div>
+        </div>
+
+        <div class="home-block home-block-quick">
+          <div class="section-head">
+            <h2 data-i18n="home.quickActions">দ্রুত কাজ</h2>
+          </div>
+          <div class="quick-grid">
+            <button class="quick-btn" id="qaAddStudent">
+              <span class="quick-ico primary"><svg class="ic" viewBox="0 0 24 24"><use href="#i-user-plus"/></svg></span>
+              <span class="quick-label" data-i18n="home.addStudent">শিক্ষার্থী যোগ</span>
+            </button>
+            <button class="quick-btn" id="qaAddEvent">
+              <span class="quick-ico orange"><svg class="ic" viewBox="0 0 24 24"><use href="#i-calendar"/></svg></span>
+              <span class="quick-label" data-i18n="home.addEvent">ইভেন্ট যোগ</span>
+            </button>
+            <button class="quick-btn" id="qaResults">
+              <span class="quick-ico green"><svg class="ic" viewBox="0 0 24 24"><use href="#i-medal"/></svg></span>
+              <span class="quick-label" data-i18n="home.results">ফলাফল</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="home-block home-block-recent">
+          <div class="section-head">
+            <h2 data-i18n="home.recentEvents">সাম্প্রতিক ইভেন্ট</h2>
+          </div>
+          <div id="recentEvents" class="card-list"></div>
+        </div>
+      </section>
+
+      <!-- STUDENTS -->
+      <section id="screen-students" class="screen">
+        <div class="searchbar">
+          <svg class="ic" viewBox="0 0 24 24"><use href="#i-search"/></svg>
+          <input id="studentSearch" data-i18n-ph="students.searchPh" placeholder="নাম / Student ID দিয়ে খুঁজুন">
+        </div>
+        <div class="chip-row" id="stuGroupChips">
+          <button class="chip active" data-group="" data-i18n="common.all">সব</button>
+          <button class="chip" data-group="A">GROUP A</button>
+          <button class="chip" data-group="B">GROUP B</button>
+          <button class="chip" data-group="C">GROUP C</button>
+        </div>
+        <div class="filter-row">
+          <select id="stuSchoolFilter" class="mini-select"></select>
+          <span class="list-count" id="studentMeta"></span>
+        </div>
+        <div id="studentList" class="card-list"></div>
+        <p class="empty" id="studentEmpty" data-i18n="students.empty" hidden>কোনো শিক্ষার্থী পাওয়া যায়নি।</p>
+      </section>
+
+      <!-- EVENTS -->
+      <section id="screen-events" class="screen">
+        <p class="screen-desc" data-i18n="events.desc">প্রতিটা ইভেন্টের ভেতরে একাধিক গেম থাকে। ইভেন্টে ট্যাপ করে গেম ও অংশগ্রহণকারী দেখো।</p>
+
+        <div class="ev-toolbar">
+          <div class="searchbar ev-search">
+            <svg class="ic" viewBox="0 0 24 24"><use href="#i-search"/></svg>
+            <input id="eventSearch" autocomplete="off" data-i18n-ph="events.searchPh" placeholder="নাম / নোট / তারিখ দিয়ে খুঁজুন">
+          </div>
+          <button class="ev-filter-btn" id="btnEventFilters" type="button">
+            <svg class="ic" viewBox="0 0 24 24"><use href="#i-filter"/></svg>
+            <span data-i18n="events.filters">ফিল্টার</span>
+            <span class="filter-badge" id="eventFilterBadge" hidden>0</span>
+          </button>
+        </div>
+
+        <div class="chip-row ev-status-chips" id="eventStatusChips">
+          <button class="chip active" type="button" data-status="all" data-i18n="common.all">সব</button>
+          <button class="chip" type="button" data-status="upcoming" data-i18n="events.upcoming">আসন্ন</button>
+          <button class="chip" type="button" data-status="past" data-i18n="events.past">সম্পন্ন</button>
+          <button class="chip" type="button" data-status="noGames" data-i18n="events.noGames">গেম নেই</button>
+          <button class="chip" type="button" data-status="results" data-i18n="events.hasResults">ফলাফল আছে</button>
+        </div>
+
+        <div class="ev-meta-row">
+          <span class="list-count" id="eventMeta"></span>
+          <select id="eventSort" class="mini-select ev-sort">
+            <option value="date-desc" data-i18n="events.sortNew">নতুন আগে</option>
+            <option value="date-asc" data-i18n="events.sortOld">পুরোনো আগে</option>
+            <option value="name-asc" data-i18n="events.sortName">নাম (ক-হ)</option>
+            <option value="games-desc" data-i18n="events.sortGames">বেশি গেম</option>
+            <option value="entries-desc" data-i18n="events.sortEntries">বেশি অংশগ্রহণ</option>
+          </select>
+        </div>
+
+        <div class="ev-active-row" id="eventActiveFilters" hidden></div>
+        <div id="eventList" class="card-list"></div>
+        <p class="empty" id="eventEmpty" data-i18n="events.empty" hidden>কোনো ইভেন্ট যোগ করা হয়নি। + দিয়ে শুরু করো।</p>
+        <div class="empty" id="eventNoMatch" hidden>
+          <span data-i18n="events.noMatch">এই ফিল্টারে কোনো ইভেন্ট মেলেনি।</span>
+          <button class="btn btn-ghost btn-sm" id="btnResetEventFiltersEmpty" type="button" data-i18n="events.clearFilters">ফিল্টার মুছুন</button>
+        </div>
+      </section>
+
+      <!-- EVENT DETAIL (secondary) -->
+      <section id="screen-eventDetail" class="screen">
+        <div class="event-hero">
+          <div class="event-hero-top">
+            <span class="event-eyebrow" data-i18n="eventDetail.eyebrow">EVENT</span>
+            <svg class="event-hero-mark" viewBox="0 0 24 24"><use href="#i-trophy"/></svg>
+          </div>
+          <div class="event-hero-name" id="edName"></div>
+          <div class="event-hero-date" id="edDate"></div>
+          <div class="event-hero-stats" id="edStats"></div>
+          <div class="event-hero-btns">
+            <button class="btn btn-lime btn-sm" id="btnEventWinners">
+              <svg class="ic" viewBox="0 0 24 24"><use href="#i-trophy"/></svg>
+              <span data-i18n="winners.btn">ফলাফল সারসংক্ষেপ</span>
+            </button>
+            <button class="btn btn-glass btn-sm" id="btnEventReport">
+              <svg class="ic" viewBox="0 0 24 24"><use href="#i-print"/></svg>
+              <span data-i18n="report.btn">রিপোর্ট / প্রিন্ট</span>
+            </button>
+          </div>
+        </div>
+        <div class="section-head">
+          <h2 data-i18n="eventDetail.gamesTitle">গেমস</h2>
+          <span class="section-meta" data-i18n="eventDetail.tapHint">গেমে ট্যাপ করলে রেকর্ড খুলবে</span>
+        </div>
+        <p class="screen-desc" data-i18n="eventDetail.desc">গেম যোগ করো, তারপর শিক্ষার্থী assign করো। শুধু ওই গ্রুপের শিক্ষার্থী দেখাবে।</p>
+        <div id="edGames" class="card-list"></div>
+        <p class="empty" id="edEmpty" data-i18n="eventDetail.empty" hidden>এই ইভেন্টে কোনো গেম নেই। + দিয়ে গেম যোগ করো।</p>
+      </section>
+
+      <!-- REPORT (secondary) -->
+      <section id="screen-report" class="screen">
+        <div class="card no-print">
+          <div class="card-head"><h2 data-i18n="report.title">ইভেন্ট রিপোর্ট</h2></div>
+          <p class="screen-desc" data-i18n="report.desc">রেজিস্ট্রেশন ও ফলাফল — প্রিন্ট করে PDF সেভ করো।</p>
+          <button class="btn btn-block" id="btnPrintReport">
+            <svg class="ic" viewBox="0 0 24 24"><use href="#i-print"/></svg>
+            <span data-i18n="report.print">প্রিন্ট / PDF</span>
+          </button>
+        </div>
+        <div id="reportArea" class="print-area"></div>
+      </section>
+
+      <!-- WINNERS / SUMMARY (secondary) -->
+      <section id="screen-winners" class="screen">
+        <div id="winnersArea"></div>
+      </section>
+
+      <!-- RESULTS — auto-gathered podium -->
+      <section id="screen-results" class="screen">
+        <div class="screen-head">
+          <div class="eyebrow" data-i18n="eyebrow.results">PODIUM</div>
+          <h1 class="screen-title">
+            <svg class="ic" viewBox="0 0 24 24"><use href="#i-trophy"/></svg>
+            <span data-i18n="results.title">ফলাফল</span>
+          </h1>
+          <p class="screen-desc" data-i18n="results.desc2">প্রতি গেমের first / second / third — records থেকে স্বয়ংক্রিয়ভাবে।</p>
+        </div>
+        <div class="card result-selectors">
+          <label class="field">
+            <span><svg class="ic" viewBox="0 0 24 24"><use href="#i-calendar"/></svg><span data-i18n="results.event">ইভেন্ট</span></span>
+            <select id="resEvent"></select>
+          </label>
+          <label class="field">
+            <span><svg class="ic" viewBox="0 0 24 24"><use href="#i-flag"/></svg><span data-i18n="results.game">খেলা</span></span>
+            <select id="resGame"></select>
+          </label>
+        </div>
+        <div id="resultsArea"></div>
+      </section>
+
+      <!-- RECORDS -->
+      <section id="screen-records" class="screen">
+        <input type="hidden" id="recordsGameId">
+        <div id="recordsArea"></div>
+      </section>
+
+      <!-- MORE -->
+      <section id="screen-more" class="screen">
+        <div class="more-hero">
+          <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><use href="#i-bolt"/></svg></div>
+          <div class="more-hero-txt">
+            <div class="more-app" data-i18n="app.title">বার্ষিক ক্রীড়া প্রতিযোগিতা</div>
+            <div class="more-sub" data-i18n="more.tagline">সব তথ্য তোমার ফোনে সংরক্ষিত</div>
+          </div>
+        </div>
+        <div class="card menu-card">
+          <button class="menu-row" data-screen="schools">
+            <span class="menu-ico blue"><svg class="ic" viewBox="0 0 24 24"><use href="#i-school"/></svg></span>
+            <span class="menu-txt"><span class="menu-title" data-i18n="more.schools">স্কুল</span><span class="menu-sub" data-i18n="more.schoolsDesc">স্কুল যোগ ও পরিচালনা</span></span>
+            <svg class="ic chev" viewBox="0 0 24 24"><use href="#i-chev"/></svg>
+          </button>
+          <button class="menu-row" data-screen="settings">
+            <span class="menu-ico green"><svg class="ic" viewBox="0 0 24 24"><use href="#i-settings"/></svg></span>
+            <span class="menu-txt"><span class="menu-title" data-i18n="more.settings">সেটিংস</span><span class="menu-sub" data-i18n="more.settingsDesc">ভাষা, ব্যাকআপ ও অন্যান্য</span></span>
+            <svg class="ic chev" viewBox="0 0 24 24"><use href="#i-chev"/></svg>
+          </button>
+        </div>
+        <div class="app-version" data-i18n="more.footer">লোকাল-ফার্স্ট · অফলাইন রেডি</div>
+      </section>
+
+      <!-- SCHOOLS (secondary) -->
+      <section id="screen-schools" class="screen">
+        <div id="schoolList" class="card-list"></div>
+        <p class="empty" id="schoolEmpty" data-i18n="schools.empty" hidden>এখনো কোনো স্কুল যোগ করা হয়নি।</p>
+      </section>
+
+      <!-- SETTINGS (secondary) -->
+      <section id="screen-settings" class="screen">
+        <div class="card">
+          <div class="card-head with-icon">
+            <span class="head-ico"><svg class="ic" viewBox="0 0 24 24"><use href="#i-globe"/></svg></span>
+            <div><h2 data-i18n="settings.language">ভাষা / Language</h2>
+            <p class="screen-desc" data-i18n="settings.languageDesc">পুরো অ্যাপের ভাষা বদলাও। ডাটা অপরিবর্তিত থাকবে।</p></div>
+          </div>
+          <div class="seg seg-lg" id="langSeg"><button data-lang="bn">বাংলা</button><button data-lang="en">English</button></div>
+        </div>
+        <div class="card">
+          <div class="card-head with-icon">
+            <span class="head-ico"><svg class="ic" viewBox="0 0 24 24"><use href="#i-download"/></svg></span>
+            <div><h2 data-i18n="backup.title">ব্যাকআপ ও রিস্টোর</h2>
+            <p class="screen-desc" data-i18n="backup.desc">সব তথ্য এক ফাইলে ডাউনলোড করে রাখো।</p></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-ghost" id="btnExport">
+              <svg class="ic" viewBox="0 0 24 24"><use href="#i-download"/></svg>
+              <span data-i18n="backup.export">ব্যাকআপ ডাউনলোড</span>
+            </button>
+            <label class="btn btn-ghost">
+              <svg class="ic" viewBox="0 0 24 24"><use href="#i-upload"/></svg>
+              <span data-i18n="backup.import">ব্যাকআপ রিস্টোর</span>
+              <input type="file" id="fileImport" accept="application/json,.json" hidden>
+            </label>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head with-icon">
+            <span class="head-ico"><svg class="ic" viewBox="0 0 24 24"><use href="#i-info"/></svg></span>
+            <div><h2 data-i18n="settings.aboutTitle">অ্যাপ সম্পর্কে</h2>
+            <p class="screen-desc" data-i18n="settings.aboutDesc">বার্ষিক ক্রীড়া প্রতিযোগিতা — স্কুল স্পোর্টস অ্যাপ। সব তথ্য তোমার ফোনেই সংরক্ষিত থাকে।</p></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ===== FAB ===== -->
+    <button id="fab" class="fab" hidden aria-label="Add">
+      <svg class="ic" viewBox="0 0 24 24"><use href="#i-plus"/></svg>
+    </button>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav class="bottomnav">
+      <div class="nav-brand" aria-hidden="true">
+        <div class="nav-brand-mark"><svg class="ic" viewBox="0 0 24 24"><use href="#i-trophy"/></svg></div>
+        <div class="nav-brand-txt">
+          <span class="nav-brand-name">TRACKDAY</span>
+          <span class="nav-brand-sub">SPORTS DESK</span>
+        </div>
+      </div>
+      <div class="nav-sep"></div>
+      <button class="nav-item active" data-screen="home">
+        <svg class="ic" viewBox="0 0 24 24"><use href="#i-home"/></svg>
+        <span data-i18n="nav.home">হোম</span>
+      </button>
+      <button class="nav-item" data-screen="students">
+        <svg class="ic" viewBox="0 0 24 24"><use href="#i-users"/></svg>
+        <span data-i18n="nav.students">শিক্ষার্থী</span>
+      </button>
+      <button class="nav-item" data-screen="events">
+        <svg class="ic" viewBox="0 0 24 24"><use href="#i-flag"/></svg>
+        <span data-i18n="nav.events">ইভেন্ট</span>
+      </button>
+      <button class="nav-item" data-screen="results">
+        <svg class="ic" viewBox="0 0 24 24"><use href="#i-medal"/></svg>
+        <span data-i18n="nav.results">ফলাফল</span>
+      </button>
+      <button class="nav-item" data-screen="more">
+        <svg class="ic" viewBox="0 0 24 24"><use href="#i-grid"/></svg>
+        <span data-i18n="nav.more">আরও</span>
+      </button>
+      <div class="nav-side-foot">
+        <span class="nsf-dot"></span>
+        <span data-i18n="more.footer">লোকাল-ফার্স্ট · অফলাইন রেডি</span>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ===== SHEET: SCHOOL ===== -->
+  <div class="sheet-overlay" id="sheetSchool">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head"><h2 id="sheetSchoolTitle" data-i18n="schools.addTitle">নতুন স্কুল</h2>
+        <button class="sheet-close" aria-label="Close" data-close="sheetSchool"><svg class="ic" viewBox="0 0 24 24"><use href="#i-close"/></svg></button>
+      </div>
+      <form id="schoolForm" class="sheet-form" autocomplete="off">
+        <input type="hidden" id="schoolEditId">
+        <label><span data-i18n="schools.name">বিদ্যালয়ের নাম</span> <span class="req">*</span><input required id="schoolName" data-i18n-ph="schools.namePh" placeholder="স্কুলের নাম"></label>
+        <label><span data-i18n="schools.principal">প্রধান শিক্ষকের নাম</span><input id="schoolPrincipal" data-i18n-ph="schools.principalPh" placeholder="প্রধান শিক্ষকের নাম"></label>
+        <label><span data-i18n="schools.mobile">মোবাইল নম্বর</span><input id="schoolMobile" placeholder="01XXXXXXXXX" inputmode="tel"></label>
+        <button class="btn btn-block" type="submit" data-i18n="common.save">সেভ করুন</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== SHEET: STUDENT ===== -->
+  <div class="sheet-overlay" id="sheetStudent">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head"><h2 id="sheetStudentTitle" data-i18n="students.addTitle">শিক্ষার্থী যোগ</h2>
+        <button class="sheet-close" aria-label="Close" data-close="sheetStudent"><svg class="ic" viewBox="0 0 24 24"><use href="#i-close"/></svg></button>
+      </div>
+      <form id="studentForm" class="sheet-form" autocomplete="off">
+        <input type="hidden" id="studentEditId">
+        <label><span data-i18n="students.school">স্কুল</span> <span class="req">*</span><select required id="stSchool"></select></label>
+        <div class="form-2col">
+          <label><span data-i18n="students.studentId">Student ID</span> <span class="auto-badge" data-i18n="common.auto">অটো</span><input id="stStudentId" readonly data-i18n-ph="common.auto" placeholder="অটো"></label>
+          <label><span data-i18n="students.chest">Chest No</span><input id="stChestNo" data-i18n-ph="common.auto" placeholder="অটো"></label>
+        </div>
+        <label><span data-i18n="students.name">শিক্ষার্থীর নাম</span> <span class="req">*</span><input required id="stName" data-i18n-ph="students.namePh" placeholder="পূর্ণ নাম"></label>
+        <div class="form-2col">
+          <label><span data-i18n="students.dob">জন্মতারিখ</span> <span class="req">*</span><input type="date" required id="stDob"></label>
+          <label><span data-i18n="students.gender">লিঙ্গ</span><select id="stGender"><option value="boys">BOYS</option><option value="girls">GIRLS</option></select></label>
+        </div>
+        <label><span data-i18n="students.father">বাবার নাম</span><input id="stFather" data-i18n-ph="students.fatherPh" placeholder="পিতার নাম"></label>
+        <div class="group-hint" id="stGroupHint"><span class="muted" data-i18n="students.groupHintEmpty">জন্মতারিখ দিলে গ্রুপ স্বয়ংক্রিয়ভাবে নির্ধারিত হবে।</span></div>
+        <p class="sheet-note" data-i18n="students.note">গেম এখানে assign করতে হবে না। ইভেন্টের ভেতরে গেম থেকে শিক্ষার্থী assign করা যাবে।</p>
+        <button class="btn btn-block" type="submit" data-i18n="common.save">সেভ করুন</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== SHEET: EVENT ===== -->
+  <div class="sheet-overlay" id="sheetEvent">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head"><h2 id="sheetEventTitle" data-i18n="events.addTitle">নতুন ইভেন্ট</h2>
+        <button class="sheet-close" aria-label="Close" data-close="sheetEvent"><svg class="ic" viewBox="0 0 24 24"><use href="#i-close"/></svg></button>
+      </div>
+      <form id="eventForm" class="sheet-form" autocomplete="off">
+        <input type="hidden" id="eventEditId">
+        <label><span data-i18n="events.name">ইভেন্টের নাম</span> <span class="req">*</span><input required id="evName" data-i18n-ph="events.namePh" placeholder="যেমন: বার্ষিক ক্রীড়া প্রতিযোগিতা ২০২৬"></label>
+        <label><span data-i18n="events.date">তারিখ</span><input type="date" id="evDate"></label>
+        <label><span data-i18n="events.note">নোট (ঐচ্ছিক)</span><input id="evNote" data-i18n-ph="events.notePh" placeholder="স্থান / বিবরণ"></label>
+        <button class="btn btn-block" type="submit" data-i18n="common.save">সেভ করুন</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== SHEET: EVENT FILTERS ===== -->
+  <div class="sheet-overlay" id="sheetEventFilter">
+    <div class="sheet filter-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head"><h2 data-i18n="events.filterTitle">অ্যাডভান্সড ফিল্টার</h2>
+        <button class="sheet-close" aria-label="Close" data-close="sheetEventFilter"><svg class="ic" viewBox="0 0 24 24"><use href="#i-close"/></svg></button>
+      </div>
+      <form class="sheet-form filter-sheet-form" id="eventFilterForm" autocomplete="off">
+        <div class="filter-block">
+          <div class="filter-block-title" data-i18n="events.dateRange">তারিখের সীমা</div>
+          <div class="form-2col">
+            <label><span data-i18n="events.from">শুরু</span><input type="date" id="evFilterFrom"></label>
+            <label><span data-i18n="events.to">শেষ</span><input type="date" id="evFilterTo"></label>
+          </div>
+        </div>
+        <div class="filter-block">
+          <div class="filter-block-title" data-i18n="events.groupFilter">গ্রুপ</div>
+          <div class="chip-row filter-chips" id="evFilterGroupChips">
+            <button class="chip active" type="button" data-group="" data-i18n="events.allGroups">সব গ্রুপ</button>
+            <button class="chip" type="button" data-group="A">GROUP A</button>
+            <button class="chip" type="button" data-group="B">GROUP B</button>
+            <button class="chip" type="button" data-group="C">GROUP C</button>
+          </div>
+        </div>
+        <label><span data-i18n="events.schoolFilter">স্কুল</span><select id="evFilterSchool"></select></label>
+        <div class="filter-block">
+          <div class="filter-block-title" data-i18n="events.gamesRange">গেম সংখ্যা</div>
+          <div class="form-2col">
+            <label><span data-i18n="events.min">সর্বনিম্ন</span><input type="number" min="0" inputmode="numeric" id="evFilterMinGames" placeholder="0"></label>
+            <label><span data-i18n="events.max">সর্বোচ্চ</span><input type="number" min="0" inputmode="numeric" id="evFilterMaxGames" placeholder="0"></label>
+          </div>
+        </div>
+        <label><span data-i18n="events.minEntries">সর্বনিম্ন অংশগ্রহণ</span><input type="number" min="0" inputmode="numeric" id="evFilterMinEntries" placeholder="0"></label>
+        <div class="filter-sheet-actions">
+          <button class="btn btn-ghost" id="btnResetEventFilters" type="button" data-i18n="events.resetFilters">সব রিসেট</button>
+          <button class="btn" id="btnApplyEventFilters" type="submit" data-i18n="events.applyFilters">ফিল্টার দেখাও</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== SHEET: GAME ===== -->
+  <div class="sheet-overlay" id="sheetGame">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head"><h2 id="sheetGameTitle" data-i18n="games.addTitle">নতুন গেম</h2>
+        <button class="sheet-close" aria-label="Close" data-close="sheetGame"><svg class="ic" viewBox="0 0 24 24"><use href="#i-close"/></svg></button>
+      </div>
+      <form id="gameForm" class="sheet-form" autocomplete="off">
+        <input type="hidden" id="gameEditId">
+        <input type="hidden" id="gameEventId">
+        <label><span data-i18n="games.name">গেমের নাম</span> <span class="req">*</span><input required id="gmName" data-i18n-ph="games.namePh" placeholder="যেমন: 100 Meter Run"></label>
+        <label><span data-i18n="games.group">গ্রুপ</span> <span class="req">*</span>
+          <select id="gmGroup"><option value="A">GROUP A</option><option value="B">GROUP B</option><option value="C">GROUP C</option></select>
+        </label>
+        <label><span data-i18n="games.metric">স্কোরের ধরন</span>
+          <select id="gmMetric">
+            <option value="manual" data-i18n="metric.manual">ম্যানুয়াল পজিশন</option>
+            <option value="time" data-i18n="metric.time">সময় — কম = ভালো</option>
+            <option value="distance" data-i18n="metric.distance">দূরত্ব — বেশি = ভালো</option>
+            <option value="height" data-i18n="metric.height">উচ্চতা — বেশি = ভালো</option>
+            <option value="points" data-i18n="metric.points">পয়েন্ট — বেশি = ভালো</option>
+          </select>
+        </label>
+        <div class="quick-picks" id="gmQuickPicks"></div>
+        <button class="btn btn-block" type="submit" data-i18n="common.save">সেভ করুন</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== SHEET: ASSIGN ===== -->
+  <div class="sheet-overlay" id="sheetAssign">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head"><h2 id="assignTitle">শিক্ষার্থী assign</h2>
+        <button class="sheet-close" aria-label="Close" data-close="sheetAssign"><svg class="ic" viewBox="0 0 24 24"><use href="#i-close"/></svg></button>
+      </div>
+      <input type="hidden" id="assignGameId">
+      <div class="assign-meta" id="assignMeta"></div>
+      <div class="searchbar">
+        <svg class="ic" viewBox="0 0 24 24"><use href="#i-search"/></svg>
+        <input id="assignSearch" data-i18n-ph="students.searchPh" placeholder="নাম / Student ID দিয়ে খুঁজুন">
+      </div>
+      <div class="filter-row">
+        <select id="assignSchoolFilter" class="mini-select"></select>
+        <button class="btn btn-ghost btn-sm" id="btnAssignToggleAll" data-i18n="assign.selectAll">সব সিলেক্ট</button>
+      </div>
+      <div id="assignList" class="assign-list"></div>
+      <p class="empty" id="assignEmpty" data-i18n="assign.empty" hidden>এই গ্রুপের কোনো শিক্ষার্থী নেই।</p>
+      <div class="assign-footer">
+        <span id="assignCount" class="assign-count"></span>
+        <button class="btn" id="btnSaveAssign" data-i18n="assign.save">সেভ করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SHEET: STUDENT PROFILE ===== -->
+  <div class="sheet-overlay" id="sheetProfile">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head"><h2 id="sheetProfileTitle" data-i18n="profile.title">শিক্ষার্থীর প্রোফাইল</h2>
+        <button class="sheet-close" aria-label="Close" data-close="sheetProfile"><svg class="ic" viewBox="0 0 24 24"><use href="#i-close"/></svg></button>
+      </div>
+      <div id="profileBody"></div>
+    </div>
+  </div>
+
+
+  <!-- ===== CONFIRM DIALOG ===== -->
+  <div class="dialog-overlay" id="dialogConfirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="dialog">
+      <div class="dialog-ico danger" id="confirmIcon"><svg class="ic" viewBox="0 0 24 24"><use href="#i-trash"/></svg></div>
+      <div class="dialog-title" id="confirmTitle">নিশ্চিত করো</div>
+      <p class="dialog-msg" id="confirmMsg"></p>
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" id="confirmCancel" type="button">বাতিল</button>
+        <button class="btn btn-danger" id="confirmOk" type="button">নিশ্চিত</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
