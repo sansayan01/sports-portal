@@ -727,6 +727,7 @@ function updateRoleGates() {
   const teacher = isTeacherUser();
   document.body.classList.toggle('admin-user', admin);
   document.body.classList.toggle('teacher-user', teacher);
+  updateFabVisibility();
 
   const p = currentProfile;
   if (!p) return;
@@ -905,6 +906,7 @@ function onSignedOut() {
   roleTimer = null;
   if (typeof Realtime !== 'undefined') Realtime.stopRealtime();
   document.body.classList.remove('authed', 'admin-user', 'teacher-user');
+  updateFabVisibility();
   document.querySelectorAll('.sheet-overlay.open').forEach(el => el.classList.remove('open'));
   setAppLoading(false);
   applyStaticI18n();
@@ -1355,8 +1357,8 @@ function showScreen(name) {
   document.getElementById('appBarEyebrow').textContent = t(EYEBROW[name] || 'app.eyebrow');
 
   document.getElementById('btnBack').hidden = !SECONDARY.includes(name);
-  updateFabVisibility();
   currentScreen = name;
+  updateFabVisibility();
   renderForScreen(name);
   document.getElementById('appContent').scrollTop = 0;
 }
@@ -1364,7 +1366,10 @@ function updateFabVisibility() {
   const fab = document.getElementById('fab');
   if (!fab) return;
   const admin = isAdminUser();
-  fab.hidden = !(currentScreen === 'students' || (admin && ['events', 'eventDetail', 'schools', 'teachers'].includes(currentScreen)));
+  const canAddStudent = admin || isTeacherUser();
+  const show = (currentScreen === 'students' && canAddStudent)
+    || (admin && ['events', 'eventDetail', 'schools', 'teachers'].includes(currentScreen));
+  fab.hidden = !show;
 }
 function renderForScreen(name) {
   if (name === 'home') renderHome();
