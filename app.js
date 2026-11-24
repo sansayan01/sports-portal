@@ -1,17 +1,7 @@
 /* =========================================================
-   Sports App v2 — School > Students | Event > Games > Entries
-   localStorage | bn/en | native-app style
+   Sports App v3 — School > Students | Event > Games > Entries
+   Supabase | realtime | role-aware | bn/en
    ========================================================= */
-
-/* ---------- Storage (new namespace = fresh start, old data untouched) ---------- */
-const K = {
-  schools: 'sportsApp.schools',
-  students: 'sportsApp.students',
-  events: 'sportsApp.events',
-  games: 'sportsApp.games',
-  entries: 'sportsApp.entries',
-  settings: 'sportsApp.settings',
-};
 
 const GROUPS = {
   A: { label: 'GROUP A', bn: 'বিভাগ-ক', range: '০১/০১/২০১৯ বা তার পর' },
@@ -389,16 +379,264 @@ const I18N = {
   },
 };
 
-/* ---------- State ---------- */
-let schools  = load(K.schools, []);
-let students = load(K.students, []);
-let events   = load(K.events, []);
-let games    = load(K.games, []);
-let entries  = load(K.entries, []);
-let settings = load(K.settings, null) || { lang: (load('sportsPortal.settings.v1', { lang: 'bn' }).lang || 'bn') };
+/* ---------- v3 additions / overrides ---------- */
+Object.assign(I18N.bn, {
+  'home.live': 'লাইভ',
+  'home.liveOn': 'লাইভ ডেটা',
+  'home.liveOff': 'সংযোগ নেই',
+  'more.tagline': 'Supabase-এ সংরক্ষিত · সবাই একসাথে',
+  'more.footer': 'Supabase · রিয়েলটাইম',
+  'settings.aboutDesc': 'বার্ষিক ক্রীড়া প্রতিযোগিতা — স্কুল স্পোর্টস অ্যাপ। তথ্য Supabase-এ সংরক্ষিত থাকে এবং সব ডিভাইসে রিয়েলটাইমে আপডেট হয়।',
+  'backup.title': 'ডেটা এক্সপোর্ট',
+  'backup.desc': 'বর্তমান ডেটা JSON ফাইলে ডাউনলোড করুন।',
+  'backup.export': 'JSON ডাউনলোড',
+  'toast.backupDownloaded': 'ডেটা ডাউনলোড হয়েছে',
+  'toast.noPermission': 'এই কাজ করার অনুমতি নেই',
+  'toast.schoolTaken': 'এই স্কুলে ইতিমধ্যে একজন শিক্ষক আছে',
+  'toast.chestDup': 'এই Chest No এই স্কুলে আগেই ব্যবহার হয়েছে',
+  'toast.alreadyAssigned': 'এই শিক্ষার্থী ইতিমধ্যে এই গেমে আছে',
+  'toast.emailTaken': 'এই ইমেইল দিয়ে ইতিমধ্যে অ্যাকাউন্ট আছে',
+  'toast.teacherCreated': 'শিক্ষক অ্যাকাউন্ট তৈরি হয়েছে',
+  'toast.teacherUpdated': 'শিক্ষক তথ্য আপডেট হয়েছে',
+  'toast.teacherDeleted': 'অ্যাকাউন্ট মুছে ফেলা হয়েছে',
+  'toast.passwordReset': 'নতুন টেম্প পাসওয়ার্ড সেট হয়েছে',
+  'toast.dataError': 'ডেটা লোড বা সেভ করা যায়নি',
+  'toast.adminExpired': 'Temp Admin মেয়াদ শেষ — এখন শুধু পড়া যাবে',
+  'toast.signedOut': 'লগআউট হয়েছে',
+  'auth.brandSub': 'স্কুল স্পোর্টস ডেস্ক',
+  'auth.eyebrow': 'নিরাপদ প্রবেশ',
+  'auth.title': 'সাইন ইন করুন',
+  'auth.subtitle': 'স্কুল স্পোর্টস পোর্টালে প্রবেশ করুন',
+  'auth.email': 'ইমেইল',
+  'auth.password': 'পাসওয়ার্ড',
+  'auth.signIn': 'সাইন ইন',
+  'auth.signingIn': 'সাইন ইন হচ্ছে…',
+  'auth.pleaseWait': 'অপেক্ষা করুন…',
+  'auth.foot': 'শুধুমাত্র অনুমোদিত ব্যবহারকারীরা প্রবেশ করতে পারবেন',
+  'auth.invalid': 'ইমেইল বা পাসওয়ার্ড সঠিক নয়',
+  'auth.notConfirmed': 'ইমেইল নিশ্চিত করা হয়নি। অ্যাডমিনের সাথে যোগাযোগ করুন',
+  'auth.tooMany': 'অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন',
+  'auth.network': 'ইন্টারনেট সংযোগ পাওয়া যাচ্ছে না',
+  'auth.failed': 'সাইন ইন করা যায়নি',
+  'auth.noProfile': 'এই অ্যাকাউন্টের প্রোফাইল নেই। অ্যাডমিনের সাথে যোগাযোগ করুন',
+  'auth.disabled': 'এই অ্যাকাউন্ট বন্ধ আছে। অ্যাডমিনের সাথে যোগাযোগ করুন',
+  'auth.needFields': 'ইমেইল ও পাসওয়ার্ড দিন',
+  'auth.security': 'নিরাপত্তা',
+  'auth.forceTitle': 'নতুন পাসওয়ার্ড দিন',
+  'auth.forceSub': 'প্রথমবার লগইন করেছেন — চালিয়ে যেতে পাসওয়ার্ড বদলাতে হবে।',
+  'auth.changeTitle': 'পাসওয়ার্ড বদলান',
+  'auth.changeSub': '{email} — নতুন পাসওয়ার্ড দিন',
+  'auth.newPassword': 'নতুন পাসওয়ার্ড',
+  'auth.confirmPassword': 'আবার লিখুন',
+  'auth.savePassword': 'পাসওয়ার্ড সেভ করুন',
+  'auth.saving': 'সেভ হচ্ছে…',
+  'auth.passwordShort': 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে',
+  'auth.passwordMismatch': 'দুইবার লেখা পাসওয়ার্ড মিলছে না',
+  'auth.passwordSaved': 'পাসওয়ার্ড বদলানো হয়েছে',
+  'teachers.title': 'শিক্ষক ও অ্যাডমিন',
+  'teachers.desc': 'প্রতিটি স্কুলে একজন শিক্ষক লিংক করুন। Temp Admin সব কাজ করতে পারে, শুধু Super Admin পরিবর্তন করতে পারে না।',
+  'teachers.addTitle': 'নতুন শিক্ষক / অ্যাডমিন',
+  'teachers.editTitle': 'অ্যাকাউন্ট সম্পাদনা',
+  'teachers.name': 'পূর্ণ নাম',
+  'teachers.email': 'ইমেইল',
+  'teachers.role': 'অ্যাকাউন্টের ধরন',
+  'teachers.roleTeacher': 'শিক্ষক',
+  'teachers.roleTemp': 'Temp Admin',
+  'teachers.school': 'স্কুল',
+  'teachers.expiry': 'মেয়াদ শেষের তারিখ',
+  'teachers.tempPassword': 'টেম্প পাসওয়ার্ড',
+  'teachers.active': 'অ্যাকাউন্ট চালু',
+  'teachers.notes': 'শিক্ষক প্রথম লগইনে পাসওয়ার্ড বদলাতে বাধ্য হবেন। পাসওয়ার্ড কোথাও সংরক্ষণ করা হয় না।',
+  'teachers.empty': 'এখনো কোনো শিক্ষক বা Temp Admin নেই।',
+  'teachers.count': '{n}টি অ্যাকাউন্ট',
+  'teachers.you': 'আপনি',
+  'teachers.super': 'Super Admin',
+  'teachers.temp': 'Temp Admin',
+  'teachers.teacher': 'শিক্ষক',
+  'teachers.expired': 'মেয়াদ শেষ',
+  'teachers.expires': 'মেয়াদ: {date}',
+  'teachers.noSchool': 'স্কুল লিংক নেই',
+  'teachers.generate': 'তৈরি করুন',
+  'teachers.resetTitle': 'পাসওয়ার্ড রিসেট',
+  'teachers.resetSub': '{email} — নতুন টেম্প পাসওয়ার্ড দিন',
+  'teachers.reset': 'পাসওয়ার্ড সেট করুন',
+  'teachers.deleteConfirm': '"{name}" ({email}) এর অ্যাকাউন্ট মুছে ফেলবেন?',
+  'teachers.schoolHint': 'একটি স্কুলে শুধু একজন শিক্ষক লিংক করা যাবে।',
+  'teachers.emailHint': 'এই ইমেইলেই লগইন করবেন।',
+  'teachers.passwordHint': 'কমপক্ষে ৮ অক্ষর।',
+  'teachers.locked': 'সুরক্ষিত',
+  'account.title': 'অ্যাকাউন্ট',
+  'account.change': 'পাসওয়ার্ড বদলান',
+  'account.logout': 'লগআউট',
+  'account.email': 'ইমেইল',
+  'account.role': 'রোল',
+  'account.school': 'স্কুল',
+  'account.expiry': 'Temp Admin মেয়াদ',
+  'account.name': 'নাম',
+  'account.secure': 'সেশনটি Supabase Auth দ্বারা সুরক্ষিত।',
+  'role.teacherBanner': 'শিক্ষক অ্যাক্সেস: নিজের স্কুলের শিক্ষার্থী যোগ করতে পারবেন। অন্য স্কুলের শিক্ষার্থী, ইভেন্ট, গেম ও ফলাফল শুধু দেখতে পারবেন।',
+  'role.adminBanner': 'অ্যাডমিন অ্যাক্সেস: সব স্কুল, শিক্ষার্থী, ইভেন্ট, গেম ও ফলাফল পরিচালনা করতে পারবেন।',
+  'records.readOnly': 'শিক্ষকরা ফলাফল সম্পাদনা করতে পারেন না — শুধু দেখতে পারেন।',
+  'common.loading': 'লোড হচ্ছে…',
+  'common.readOnly': 'শুধু পড়ুন',
+  'schools.desc': 'সব স্কুলের তালিকা। অ্যাডমিন স্কুল যোগ, সম্পাদনা ও মুছে ফেলতে পারেন।',
+  'more.teachersDesc': 'শিক্ষক অ্যাকাউন্ট ও স্কুল লিংক',
+  'more.accountDesc': 'নিজের প্রোফাইল, পাসওয়ার্ড ও সেশন',
+  'teachers.inactive': 'নিষ্ক্রিয়',
+  'teachers.self': 'আপনি',
+  'teachers.roleLocked': 'অ্যাকাউন্টের ধরন পরে বদলানো যায় না।',
+  'teachers.selfLocked': 'নিজের অ্যাকাউন্টের স্কুল, মেয়াদ বা সক্রিয় অবস্থা বদলানো যাবে না।',
+  'teachers.currentSchool': 'বর্তমান স্কুল',
+  'teachers.expiryHint': 'মেয়াদ শেষ হলে Temp Admin স্বয়ংক্রিয়ভাবে শুধু-পাঠক হয়ে যাবে।',
+  'toast.accountUpdated': 'অ্যাকাউন্ট আপডেট হয়েছে',
+  'toast.invalidExpiry': 'মেয়াদ ভবিষ্যতের তারিখে হতে হবে',
+  'toast.teacherSelfEdit': 'শুধু নাম ও পাসওয়ার্ড পরিবর্তন করা যাবে',
+  'confirm.signOut': 'লগআউট করবেন?',
+  'confirm.signOutMsg': 'লগআউট করলে আবার সাইন ইন করতে হবে।',
+  'account.tempNote': 'Temp Admin মেয়াদ শেষ হলে অ্যাডমিন ক্ষমতা বন্ধ হয়ে যাবে।',
+  'account.teacherNote': 'আপনি শুধু নিজের স্কুলের শিক্ষার্থী যোগ করতে পারবেন। অন্যান্য তথ্য শুধু পড়তে পারবেন।',
+  'account.sessionNote': 'Supabase Auth সেশন সক্রিয়।',
+  'account.unknownSchool': 'স্কুল লিংক নেই',
+});
+
+Object.assign(I18N.en, {
+  'home.live': 'Live',
+  'home.liveOn': 'Live data',
+  'home.liveOff': 'Offline',
+  'more.tagline': 'Stored in Supabase · shared by everyone',
+  'more.footer': 'Supabase · Realtime',
+  'settings.aboutDesc': 'Annual Sports Competition — School Sports App. Data lives in Supabase and updates on every device in realtime.',
+  'backup.title': 'Data export',
+  'backup.desc': 'Download the current data as a JSON file.',
+  'backup.export': 'Download JSON',
+  'toast.backupDownloaded': 'Data downloaded',
+  'toast.noPermission': 'You do not have permission for this action',
+  'toast.schoolTaken': 'This school already has a teacher',
+  'toast.chestDup': 'This chest number is already used in this school',
+  'toast.alreadyAssigned': 'This student is already in this game',
+  'toast.emailTaken': 'An account with this email already exists',
+  'toast.teacherCreated': 'Teacher account created',
+  'toast.teacherUpdated': 'Teacher account updated',
+  'toast.teacherDeleted': 'Account deleted',
+  'toast.passwordReset': 'New temporary password set',
+  'toast.dataError': 'Could not load or save data',
+  'toast.adminExpired': 'Temp Admin access expired — now read-only',
+  'toast.signedOut': 'Signed out',
+  'auth.brandSub': 'SCHOOL SPORTS DESK',
+  'auth.eyebrow': 'SECURE ACCESS',
+  'auth.title': 'Sign in',
+  'auth.subtitle': 'Enter the school sports portal',
+  'auth.email': 'Email',
+  'auth.password': 'Password',
+  'auth.signIn': 'Sign in',
+  'auth.signingIn': 'Signing in…',
+  'auth.pleaseWait': 'Please wait…',
+  'auth.foot': 'Authorised users only',
+  'auth.invalid': 'Email or password is incorrect',
+  'auth.notConfirmed': 'Email is not confirmed. Contact an admin',
+  'auth.tooMany': 'Too many attempts. Try again later',
+  'auth.network': 'No internet connection',
+  'auth.failed': 'Could not sign in',
+  'auth.noProfile': 'This account has no profile. Contact an admin',
+  'auth.disabled': 'This account is disabled. Contact an admin',
+  'auth.needFields': 'Enter email and password',
+  'auth.security': 'SECURITY',
+  'auth.forceTitle': 'Set a new password',
+  'auth.forceSub': 'First login detected — change your password to continue.',
+  'auth.changeTitle': 'Change password',
+  'auth.changeSub': '{email} — set a new password',
+  'auth.newPassword': 'New password',
+  'auth.confirmPassword': 'Confirm password',
+  'auth.savePassword': 'Save password',
+  'auth.saving': 'Saving…',
+  'auth.passwordShort': 'Password must be at least 8 characters',
+  'auth.passwordMismatch': 'Passwords do not match',
+  'auth.passwordSaved': 'Password changed',
+  'teachers.title': 'Teachers & admins',
+  'teachers.desc': 'Link one teacher to each school. A Temp Admin can do everything except change the Super Admin.',
+  'teachers.addTitle': 'New teacher / admin',
+  'teachers.editTitle': 'Edit account',
+  'teachers.name': 'Full name',
+  'teachers.email': 'Email',
+  'teachers.role': 'Account type',
+  'teachers.roleTeacher': 'Teacher',
+  'teachers.roleTemp': 'Temp Admin',
+  'teachers.school': 'School',
+  'teachers.expiry': 'Expiry date',
+  'teachers.tempPassword': 'Temporary password',
+  'teachers.active': 'Account active',
+  'teachers.notes': 'Teachers must change their password on first login. Passwords are never stored.',
+  'teachers.empty': 'No teachers or Temp Admins yet.',
+  'teachers.count': '{n} accounts',
+  'teachers.you': 'You',
+  'teachers.super': 'Super Admin',
+  'teachers.temp': 'Temp Admin',
+  'teachers.teacher': 'Teacher',
+  'teachers.expired': 'Expired',
+  'teachers.expires': 'Expires: {date}',
+  'teachers.noSchool': 'No school linked',
+  'teachers.generate': 'Generate',
+  'teachers.resetTitle': 'Reset password',
+  'teachers.resetSub': '{email} — set a new temporary password',
+  'teachers.reset': 'Set password',
+  'teachers.deleteConfirm': 'Delete the account for "{name}" ({email})?',
+  'teachers.schoolHint': 'Only one teacher can be linked to a school.',
+  'teachers.emailHint': 'They will sign in with this email.',
+  'teachers.passwordHint': 'At least 8 characters.',
+  'teachers.locked': 'Protected',
+  'account.title': 'Account',
+  'account.change': 'Change password',
+  'account.logout': 'Sign out',
+  'account.email': 'Email',
+  'account.role': 'Role',
+  'account.school': 'School',
+  'account.expiry': 'Temp Admin expiry',
+  'account.name': 'Name',
+  'account.secure': 'Your session is protected by Supabase Auth.',
+  'role.teacherBanner': 'Teacher access: add students for your own school. Other schools’ students, events, games, and results are read-only.',
+  'role.adminBanner': 'Admin access: manage every school, student, event, game and result.',
+  'records.readOnly': 'Teachers cannot edit results — read-only view.',
+  'common.loading': 'Loading…',
+  'common.readOnly': 'Read only',
+  'schools.desc': 'All registered schools. Admins can add, edit and delete schools.',
+  'more.teachersDesc': 'Teacher accounts and school links',
+  'more.accountDesc': 'Your profile, password and session',
+  'teachers.inactive': 'Disabled',
+  'teachers.self': 'You',
+  'teachers.roleLocked': 'Account type cannot be changed later.',
+  'teachers.selfLocked': 'You cannot change your own school, expiry or active state.',
+  'teachers.currentSchool': 'Current school',
+  'teachers.expiryHint': 'When the expiry passes, the Temp Admin becomes read-only automatically.',
+  'toast.accountUpdated': 'Account updated',
+  'toast.invalidExpiry': 'Expiry must be in the future',
+  'toast.teacherSelfEdit': 'Only your name and password can be changed',
+  'confirm.signOut': 'Sign out?',
+  'confirm.signOutMsg': 'You will need to sign in again.',
+  'account.tempNote': 'Admin powers stop automatically when the Temp Admin expiry passes.',
+  'account.teacherNote': 'You can only add students for your own school. All other data is read-only.',
+  'account.sessionNote': 'Supabase Auth session is active.',
+  'account.unknownSchool': 'No school linked',
+});
+
+/* ---------- State (loaded from Supabase after login) ---------- */
+const LANG_KEY = 'sportsApp.lang';
+let schools  = [];
+let students = [];
+let events   = [];
+let games    = [];
+let entries  = [];
+let profiles = [];
+let currentProfile = null;
+let currentSession = null;
+let settings = { lang: localStorage.getItem(LANG_KEY) || 'bn' };
 if (!['bn', 'en'].includes(settings.lang)) settings.lang = 'bn';
 
 let editingSchool = null, editingStudent = null, editingEvent = null, editingGame = null;
+let editingTeacher = null;
+let resetPasswordUserId = null;
+let appBooted = false;
+let realtimeLive = false;
+let roleTimer = null;
 let currentScreen = 'home';
 let openEventId = null;
 let assignSelected = new Set();
@@ -411,29 +649,563 @@ const EVENT_FILTER_DEFAULT = {
 let eventFilter = { ...EVENT_FILTER_DEFAULT };
 let eventFilterGroupDraft = '';
 
-const SECONDARY = ['schools', 'settings', 'eventDetail', 'report', 'winners', 'records'];
-const BACK = { schools: 'more', settings: 'more', eventDetail: 'events', report: 'eventDetail', winners: 'eventDetail', records: 'eventDetail' };
-const NAV_FOR = { schools: 'more', settings: 'more', eventDetail: 'events', report: 'events', winners: 'events', records: 'events' };
+const SECONDARY = ['schools', 'settings', 'teachers', 'eventDetail', 'report', 'winners', 'records'];
+const BACK = { schools: 'more', settings: 'more', teachers: 'more', eventDetail: 'events', report: 'eventDetail', winners: 'eventDetail', records: 'eventDetail' };
+const NAV_FOR = { schools: 'more', settings: 'more', teachers: 'more', eventDetail: 'events', report: 'events', winners: 'events', records: 'events' };
 const TITLES = {
   home: 'title.home', students: 'title.students', events: 'title.events', results: 'title.results',
-  more: 'title.more', schools: 'title.schools', settings: 'title.settings', report: 'report.title', winners: 'winners.title', records: 'records.title',
+  more: 'title.more', schools: 'title.schools', settings: 'title.settings', teachers: 'teachers.title',
+  report: 'report.title', winners: 'winners.title', records: 'records.title',
 };
 const EYEBROW = {
   home: 'eyebrow.home', students: 'eyebrow.students', events: 'eyebrow.events', results: 'eyebrow.results',
-  more: 'eyebrow.more', schools: 'eyebrow.schools', settings: 'eyebrow.settings', report: 'eyebrow.report',
-  winners: 'eyebrow.winners', records: 'eyebrow.records', eventDetail: 'eyebrow.eventDetail',
+  more: 'eyebrow.more', schools: 'eyebrow.schools', settings: 'eyebrow.settings', teachers: 'teachers.title',
+  report: 'eyebrow.report', winners: 'eyebrow.winners', records: 'eyebrow.records', eventDetail: 'eyebrow.eventDetail',
 };
 
-/* ---------- Persistence ---------- */
-function load(key, def) { try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : def; } catch (e) { return def; } }
-function saveAll() {
-  localStorage.setItem(K.schools, JSON.stringify(schools));
-  localStorage.setItem(K.students, JSON.stringify(students));
-  localStorage.setItem(K.events, JSON.stringify(events));
-  localStorage.setItem(K.games, JSON.stringify(games));
-  localStorage.setItem(K.entries, JSON.stringify(entries));
-  localStorage.setItem(K.settings, JSON.stringify(settings));
+/* ---------- Role helpers ---------- */
+function isSuperAdmin() {
+  return !!currentProfile && currentProfile.role === 'super_admin';
 }
+function isTempAdminActive() {
+  if (!currentProfile || currentProfile.role !== 'teacher' || !currentProfile.isTempAdmin) return false;
+  if (!currentProfile.tempAdminUntil) return true;
+  return new Date(currentProfile.tempAdminUntil).getTime() > Date.now();
+}
+function isAdminUser() {
+  return isSuperAdmin() || isTempAdminActive();
+}
+function isTeacherUser() {
+  return !!currentProfile && currentProfile.role === 'teacher' && !isAdminUser() && !!currentProfile.schoolId;
+}
+function ownSchoolId() {
+  return currentProfile && currentProfile.schoolId ? currentProfile.schoolId : null;
+}
+function canEditStudent(student) {
+  return !!student && isAdminUser();
+}
+function showError(err) {
+  console.error(err);
+  const msg = err && err.friendlyKey ? t(err.friendlyKey) : (err && err.message) || t('toast.dataError');
+  toast(msg, true);
+}
+async function withBusy(btn, fn) {
+  if (btn) btn.disabled = true;
+  try { return await fn(); } finally { if (btn) btn.disabled = false; }
+}
+
+/* ---------- Auth / session state ---------- */
+window.AppState = { profile: null, session: null, isAdmin: false, isTeacher: false };
+
+function isProfileAdmin(p) {
+  if (!p || !p.isActive) return false;
+  if (p.role === 'super_admin') return true;
+  if (!p.isTempAdmin) return false;
+  return !p.tempAdminUntil || new Date(p.tempAdminUntil).getTime() > Date.now();
+}
+function profileRoleLabel(p) {
+  if (!p) return '';
+  if (p.role === 'super_admin') return t('teachers.super');
+  if (p.isTempAdmin) return isProfileAdmin(p) ? t('teachers.temp') : t('teachers.expired');
+  return t('teachers.teacher');
+}
+function isSelfProfile(p) {
+  return !!currentProfile && !!p && p.id === currentProfile.id;
+}
+function fmtDateTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  try {
+    return d.toLocaleString(settings.lang === 'bn' ? 'bn-BD' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' });
+  } catch (_) {
+    return d.toLocaleString();
+  }
+}
+function updateRoleGates() {
+  const admin = isAdminUser();
+  const teacher = isTeacherUser();
+  document.body.classList.toggle('admin-user', admin);
+  document.body.classList.toggle('teacher-user', teacher);
+
+  const p = currentProfile;
+  if (!p) return;
+  const name = p.fullName || p.email || '';
+  const ini = initials(name);
+  ['appbarAvatar', 'moreAvatar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = ini;
+  });
+  const moreName = document.getElementById('moreName');
+  if (moreName) moreName.textContent = name || t('account.title');
+  const moreEmail = document.getElementById('moreEmail');
+  if (moreEmail) moreEmail.textContent = p.email || '';
+
+  const banner = document.getElementById('roleBanner');
+  if (banner) {
+    banner.hidden = false;
+    const roleLabel = profileRoleLabel(p);
+    const isTemp = p.role === 'teacher' && p.isTempAdmin;
+    const note = admin ? t('role.adminBanner') : t('role.teacherBanner');
+    const expiry = isTemp ? ` · ${t('teachers.expires', { date: fmtDateTime(p.tempAdminUntil) })}` : '';
+    banner.className = 'role-banner ' + (admin ? 'admin' : 'teacher');
+    banner.innerHTML = `<span class="role-banner-ico">${icon(admin ? 'shield' : 'info')}</span>
+      <span class="role-banner-txt"><strong>${esc(roleLabel)}${esc(expiry)}</strong><span>${esc(note)}</span></span>`;
+  }
+}
+function updateAccountUI() {
+  updateRoleGates();
+  const body = document.getElementById('accountBody');
+  if (!body) return;
+  const p = currentProfile;
+  if (!p) { body.innerHTML = ''; return; }
+  const school = p.schoolId ? schoolById(p.schoolId) : null;
+  const isTemp = p.role === 'teacher' && p.isTempAdmin;
+  const roleLabel = profileRoleLabel(p);
+  const note = p.role === 'super_admin'
+    ? t('role.adminBanner')
+    : isTemp
+      ? t('account.tempNote')
+      : t('account.teacherNote');
+  const rows = [
+    `<div class="account-row"><span>${t('account.email')}</span><strong>${esc(p.email || '—')}</strong></div>`,
+    `<div class="account-row"><span>${t('account.role')}</span><strong>${esc(roleLabel)}</strong></div>`,
+  ];
+  if (p.role === 'teacher' && !isTemp) {
+    rows.push(`<div class="account-row"><span>${t('account.school')}</span><strong>${esc(school ? school.name : t('account.unknownSchool'))}</strong></div>`);
+  }
+  if (isTemp) {
+    rows.push(`<div class="account-row"><span>${t('account.expiry')}</span><strong>${esc(fmtDateTime(p.tempAdminUntil))}</strong></div>`);
+  }
+  body.innerHTML = `
+    <div class="account-hero">
+      <div class="account-avatar">${esc(initials(p.fullName || p.email))}</div>
+      <div class="account-id">
+        <div class="account-name">${esc(p.fullName || p.email || '')}</div>
+        <div class="account-mail">${esc(p.email || '')}</div>
+      </div>
+      <span class="role-pill ${p.role === 'super_admin' ? 'super' : isTemp ? 'temp' : 'teacher'}">${esc(roleLabel)}</span>
+    </div>
+    <div class="account-rows">${rows.join('')}</div>
+    <p class="account-note">${icon(p.role === 'super_admin' || isTemp ? 'shield' : 'info')}<span>${esc(note)}</span></p>
+    <div class="account-actions">
+      <button class="btn btn-ghost" type="button" id="btnChangePassword">${icon('key')}<span>${t('account.change')}</span></button>
+      <button class="btn btn-danger" type="button" id="btnAccountSignOut">${icon('logout')}<span>${t('account.logout')}</span></button>
+    </div>
+    <p class="account-secure">${icon('shield')}<span>${t('account.sessionNote')}</span></p>`;
+}
+
+function setAppLoading(busy) {
+  const el = document.getElementById('appLoading');
+  if (el) el.hidden = !busy;
+}
+
+let refreshPromise = null;
+async function refreshWorkspace(opts = {}) {
+  if (!currentProfile) return;
+  if (refreshPromise) return refreshPromise;
+  const silent = !!opts.silent;
+  refreshPromise = (async () => {
+    if (!silent) setAppLoading(true);
+    try {
+      const ws = await Data.fetchWorkspace(currentProfile);
+      schools = ws.schools || [];
+      students = ws.students || [];
+      events = ws.events || [];
+      games = ws.games || [];
+      entries = ws.entries || [];
+      profiles = ws.profiles && ws.profiles.length ? ws.profiles : [currentProfile];
+      const fresh = profiles.find(p => p.id === currentProfile.id);
+      if (fresh) {
+        currentProfile = fresh;
+        window.AppState.profile = fresh;
+        if (!fresh.isActive) {
+          await AppAuth.signOut();
+          return;
+        }
+        if (['bn', 'en'].includes(fresh.language) && fresh.language !== settings.lang) {
+          settings.lang = fresh.language;
+          localStorage.setItem(LANG_KEY, settings.lang);
+        }
+      } else {
+        await AppAuth.signOut();
+        return;
+      }
+      window.AppState.isAdmin = isAdminUser();
+      window.AppState.isTeacher = isTeacherUser();
+      applyStaticI18n();
+      updateRoleGates();
+      refreshSchoolSelects();
+      if (currentScreen === 'teachers' && !isAdminUser()) {
+        showScreen('home');
+      } else if (appBooted) {
+        renderForScreen(currentScreen);
+      }
+      updateAccountUI();
+    } catch (err) {
+      if (!silent) showError(err);
+      else console.error('[refresh]', err);
+    } finally {
+      if (!silent) setAppLoading(false);
+    }
+  })();
+  try { await refreshPromise; } finally { refreshPromise = null; }
+}
+window.refreshWorkspace = refreshWorkspace;
+
+function startRoleWatch() {
+  clearInterval(roleTimer);
+  let lastAdmin = isAdminUser();
+  roleTimer = setInterval(() => {
+    if (!currentProfile) return;
+    const nowAdmin = isAdminUser();
+    updateRoleGates();
+    if (nowAdmin !== lastAdmin) {
+      lastAdmin = nowAdmin;
+      window.AppState.isAdmin = nowAdmin;
+      if (!nowAdmin) {
+        toast(t('toast.adminExpired'), true);
+        if (currentScreen === 'teachers') showScreen('home');
+      }
+      renderForScreen(currentScreen);
+      updateAccountUI();
+    }
+  }, 30000);
+}
+
+async function onAuthenticated(profile, session) {
+  currentProfile = profile;
+  currentSession = session;
+  window.AppState = { profile, session, isAdmin: isProfileAdmin(profile), isTeacher: false };
+  window.AppState.isTeacher = profile.role === 'teacher' && !window.AppState.isAdmin && !!profile.schoolId;
+  if (profile.language && ['bn', 'en'].includes(profile.language)) settings.lang = profile.language;
+  localStorage.setItem(LANG_KEY, settings.lang);
+  document.body.classList.remove('auth-locked', 'password-locked');
+  document.body.classList.add('authed');
+  appBooted = true;
+  applyStaticI18n();
+  updateRoleGates();
+  showScreen('home');
+  setAppLoading(true);
+  await refreshWorkspace({ silent: true });
+  setAppLoading(false);
+  if (typeof Realtime !== 'undefined') Realtime.startRealtime();
+  startRoleWatch();
+}
+window.onAuthenticated = onAuthenticated;
+
+function onSignedOut() {
+  currentProfile = null;
+  currentSession = null;
+  window.AppState = { profile: null, session: null, isAdmin: false, isTeacher: false };
+  schools = []; students = []; events = []; games = []; entries = []; profiles = [];
+  appBooted = false;
+  realtimeLive = false;
+  clearInterval(roleTimer);
+  roleTimer = null;
+  if (typeof Realtime !== 'undefined') Realtime.stopRealtime();
+  document.body.classList.remove('authed', 'admin-user', 'teacher-user');
+  document.querySelectorAll('.sheet-overlay.open').forEach(el => el.classList.remove('open'));
+  setAppLoading(false);
+  applyStaticI18n();
+}
+window.onSignedOut = onSignedOut;
+
+function onPasswordChanged() {
+  if (currentProfile) currentProfile.mustChangePassword = false;
+  updateAccountUI();
+}
+window.onPasswordChanged = onPasswordChanged;
+
+function onRealtimeStatus(live) {
+  realtimeLive = !!live;
+  const liveWrap = document.getElementById('liveIndicator');
+  if (liveWrap) liveWrap.classList.toggle('offline', !realtimeLive);
+  const liveLabel = document.getElementById('liveLabel');
+  if (liveLabel) liveLabel.textContent = t(realtimeLive ? 'home.liveOn' : 'home.liveOff');
+  const dot = document.getElementById('appbarLive');
+  if (dot) dot.classList.toggle('off', !realtimeLive);
+}
+window.onRealtimeStatus = onRealtimeStatus;
+
+/* ---------- Teachers / admins ---------- */
+function canManageProfile(p) {
+  return !!p && p.role !== 'super_admin';
+}
+function teacherSchoolName(p) {
+  if (!p || !p.schoolId) return null;
+  const s = schoolById(p.schoolId);
+  return s ? s.name : null;
+}
+function renderTeachers() {
+  if (!isAdminUser()) return;
+  const list = document.getElementById('teacherList');
+  const empty = document.getElementById('teacherEmpty');
+  const meta = document.getElementById('teacherMeta');
+  if (!list || !empty) return;
+  const rows = [...profiles].sort((a, b) => {
+    const rank = p => p.role === 'super_admin' ? 0 : p.isTempAdmin ? 1 : 2;
+    return rank(a) - rank(b) || String(a.fullName || a.email).localeCompare(String(b.fullName || b.email));
+  });
+  if (meta) meta.textContent = t('teachers.count', { n: rows.length });
+  if (!rows.length) { list.innerHTML = ''; empty.hidden = false; return; }
+  empty.hidden = true;
+  list.innerHTML = rows.map(p => {
+    const self = isSelfProfile(p);
+    const superAdmin = p.role === 'super_admin';
+    const temp = p.role === 'teacher' && p.isTempAdmin;
+    const active = isProfileAdmin(p);
+    const schoolName = teacherSchoolName(p);
+    const roleClass = superAdmin ? 'super' : temp ? 'temp' : 'teacher';
+    const roleText = superAdmin
+      ? t('teachers.super')
+      : temp
+        ? (active ? t('teachers.temp') : t('teachers.expired'))
+        : t('teachers.teacher');
+    const tags = [`<span class="pill role ${roleClass}">${esc(roleText)}</span>`];
+    if (schoolName) tags.push(`<span class="pill count">${icon('school')}${esc(schoolName)}</span>`);
+    if (temp) tags.push(`<span class="pill count">${icon('clock')}${esc(fmtDateTime(p.tempAdminUntil))}</span>`);
+    if (!p.isActive) tags.push(`<span class="pill off">${esc(t('teachers.inactive'))}</span>`);
+    const manage = canManageProfile(p);
+    const actions = manage ? `
+      <button class="icon-btn edit" data-action="edit-teacher" data-id="${p.id}" aria-label="${t('common.edit')}" title="${t('common.edit')}">${icon('edit')}</button>
+      <button class="icon-btn key" data-action="reset-password" data-id="${p.id}" aria-label="${t('teachers.resetTitle')}" title="${t('teachers.resetTitle')}">${icon('key')}</button>
+      ${self ? '' : `<button class="icon-btn danger" data-action="delete-teacher" data-id="${p.id}" aria-label="${t('common.delete')}" title="${t('common.delete')}">${icon('trash')}</button>`}
+    ` : `<span class="protected-pill">${icon('shield')}<span>${t('teachers.locked')}</span></span>`;
+    return `<div class="pcard teacher-card">
+      <div class="pcard-top">
+        <div class="avatar teacher ${roleClass}">${esc(initials(p.fullName || p.email))}</div>
+        <div class="pcard-info">
+          <div class="pcard-name">${esc(p.fullName || p.email || '—')}${self ? ` <span class="you-pill">${t('teachers.self')}</span>` : ''}</div>
+          <div class="pcard-sub">${esc(p.email || '')}</div>
+          <div class="pcard-tags">${tags.join('')}</div>
+        </div>
+        <div class="pcard-actions">${actions}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function buildSchoolOptions(selectedId, editingId) {
+  const linked = new Set(profiles
+    .filter(p => p.schoolId && p.id !== editingId)
+    .map(p => p.schoolId));
+  return `<option value="">${t('teachers.school')}…</option>` + schools.map(s => {
+    const taken = linked.has(s.id);
+    return `<option value="${s.id}" ${taken ? 'disabled' : ''} ${s.id === selectedId ? 'selected' : ''}>${esc(s.name)}${taken ? ' — ' + t('teachers.locked') : ''}</option>`;
+  }).join('');
+}
+function toLocalInput(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function generatePassword() {
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lower = 'abcdefghijkmnopqrstuvwxyz';
+  const digits = '23456789';
+  const symbols = '!@#$%&*';
+  const all = upper + lower + digits + symbols;
+  const pick = set => set[Math.floor(Math.random() * set.length)];
+  const chars = [pick(upper), pick(lower), pick(digits), pick(symbols)];
+  const arr = new Uint32Array(8);
+  if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(arr);
+  else for (let i = 0; i < arr.length; i++) arr[i] = Math.floor(Math.random() * 4294967296);
+  for (let i = 0; i < arr.length; i++) chars.push(all[arr[i] % all.length]);
+  return chars.sort(() => Math.random() - 0.5).join('');
+}
+function updateTeacherFormFields() {
+  const role = document.getElementById('teacherRole').value;
+  const editing = !!editingTeacher;
+  const target = editing ? profileById(editingTeacher) : null;
+  const self = !!target && isSelfProfile(target);
+  document.getElementById('teacherSchoolWrap').hidden = role !== 'teacher';
+  document.getElementById('teacherExpiryWrap').hidden = role !== 'temp_admin';
+  document.getElementById('teacherExpiry').disabled = editing && !isSuperAdmin();
+  document.getElementById('teacherPasswordWrap').hidden = editing;
+  document.getElementById('teacherEmailWrap').hidden = editing;
+  document.getElementById('teacherRoleWrap').hidden = editing && (!isSuperAdmin() || self);
+  const tempAdminOption = document.querySelector('#teacherRole option[value="temp_admin"]');
+  if (tempAdminOption) tempAdminOption.disabled = !editing && !isSuperAdmin();
+  const activeWrap = document.getElementById('teacherActiveWrap');
+  activeWrap.hidden = !editing || self;
+}
+function openTeacherSheet(id) {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
+  editingTeacher = id || null;
+  document.getElementById('teacherForm').reset();
+  document.getElementById('teacherUserId').value = id || '';
+  const schoolSel = document.getElementById('teacherSchool');
+  schoolSel.innerHTML = buildSchoolOptions('', id || null);
+  const roleSel = document.getElementById('teacherRole');
+  roleSel.disabled = !!id && !isSuperAdmin();
+  document.getElementById('teacherEmail').disabled = !!id;
+  document.getElementById('teacherActive').checked = true;
+
+  if (id) {
+    const p = profileById(id);
+    if (!p || p.role === 'super_admin') { toast(t('toast.noPermission'), true); return; }
+    const self = isSelfProfile(p);
+    document.getElementById('sheetTeacherTitle').textContent = t('teachers.editTitle');
+    document.getElementById('teacherName').value = p.fullName || '';
+    document.getElementById('teacherEmail').value = p.email || '';
+    roleSel.value = p.isTempAdmin ? 'temp_admin' : 'teacher';
+    schoolSel.innerHTML = buildSchoolOptions(p.schoolId, p.id);
+    if (p.isTempAdmin) {
+      document.getElementById('teacherExpiry').value = toLocalInput(p.tempAdminUntil);
+    }
+    document.getElementById('teacherActive').checked = !!p.isActive;
+    if (self) {
+      document.getElementById('teacherActiveWrap').hidden = true;
+    }
+  } else {
+    document.getElementById('sheetTeacherTitle').textContent = t('teachers.addTitle');
+    roleSel.value = 'teacher';
+    document.getElementById('teacherExpiry').value = toLocalInput(new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString());
+    document.getElementById('teacherPassword').value = generatePassword();
+  }
+  updateTeacherFormFields();
+  openSheet('sheetTeacher');
+}
+async function submitTeacher(e) {
+  e.preventDefault();
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
+  const id = document.getElementById('teacherUserId').value;
+  const name = document.getElementById('teacherName').value.trim();
+  const role = document.getElementById('teacherRole').value;
+  const schoolId = document.getElementById('teacherSchool').value;
+  const password = document.getElementById('teacherPassword').value;
+  const active = document.getElementById('teacherActive').checked;
+  const expiryRaw = document.getElementById('teacherExpiry').value;
+  if (!name) return;
+  const btn = e.target.querySelector('button[type="submit"]');
+  await withBusy(btn, async () => {
+    try {
+      if (id) {
+        const target = profileById(id);
+        if (!target || target.role === 'super_admin') { toast(t('toast.noPermission'), true); return; }
+        const self = isSelfProfile(target);
+        const patch = { fullName: name };
+        const wantsTempAdmin = role === 'temp_admin';
+        if (!self) {
+          if (wantsTempAdmin && !target.isTempAdmin && !isSuperAdmin()) {
+            toast(t('toast.noPermission'), true); return;
+          }
+          if (!wantsTempAdmin && target.isTempAdmin && !isSuperAdmin()) {
+            toast(t('toast.noPermission'), true); return;
+          }
+          if (wantsTempAdmin) {
+            if (!isSuperAdmin() && target.isTempAdmin) {
+              // Temp admins may manage teacher data but cannot grant or extend admin powers.
+            } else {
+              if (!expiryRaw) { toast(t('toast.invalidExpiry'), true); return; }
+              const until = new Date(expiryRaw);
+              if (Number.isNaN(until.getTime()) || until.getTime() <= Date.now()) { toast(t('toast.invalidExpiry'), true); return; }
+              patch.schoolId = null;
+              patch.isTempAdmin = true;
+              patch.tempAdminUntil = until.toISOString();
+            }
+          } else {
+            if (!schoolId) { toast(t('toast.needSchool'), true); return; }
+            patch.schoolId = schoolId;
+            if (target.isTempAdmin) {
+              patch.isTempAdmin = false;
+              patch.tempAdminUntil = null;
+            }
+          }
+          patch.isActive = active;
+        } else {
+          toast(t('toast.teacherSelfEdit'));
+        }
+        await Data.updateProfile(id, patch);
+        toast(t('toast.accountUpdated'));
+      } else {
+        if (role === 'teacher') {
+          if (!schoolId) { toast(t('toast.needSchool'), true); return; }
+        } else if (!expiryRaw) {
+          toast(t('toast.invalidExpiry'), true); return;
+        }
+        const until = expiryRaw ? new Date(expiryRaw) : null;
+        if (role === 'temp_admin' && (!until || Number.isNaN(until.getTime()) || until.getTime() <= Date.now())) {
+          toast(t('toast.invalidExpiry'), true); return;
+        }
+        if (!password || password.length < 8) { toast(t('auth.passwordShort'), true); return; }
+        await Data.invokeAdminTeachers('create', {
+          email: document.getElementById('teacherEmail').value.trim(),
+          password,
+          full_name: name,
+          role: role === 'temp_admin' ? 'temp_admin' : 'teacher',
+          school_id: role === 'teacher' ? schoolId : null,
+          temp_admin_until: role === 'temp_admin' ? until.toISOString() : null,
+        });
+        toast(t('toast.teacherCreated'));
+      }
+      resetTeacherForm();
+      closeSheet('sheetTeacher');
+      await refreshWorkspace({ silent: true });
+    } catch (err) { showError(err); }
+  });
+}
+function resetTeacherForm() {
+  editingTeacher = null;
+  document.getElementById('teacherForm').reset();
+  document.getElementById('teacherUserId').value = '';
+}
+async function deleteTeacher(id) {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
+  const p = profileById(id);
+  if (!p) return;
+  if (p.role === 'super_admin' || isSelfProfile(p)) { toast(t('toast.noPermission'), true); return; }
+  if (!(await askConfirm(t('teachers.deleteConfirm', { name: p.fullName || p.email, email: p.email }), { okText: t('common.delete') }))) return;
+  try {
+    await Data.invokeAdminTeachers('delete', { user_id: id });
+    toast(t('toast.teacherDeleted'));
+    await refreshWorkspace({ silent: true });
+  } catch (err) { showError(err); }
+}
+function openResetPasswordSheet(id) {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
+  const p = profileById(id);
+  if (!p || p.role === 'super_admin') { toast(t('toast.noPermission'), true); return; }
+  resetPasswordUserId = id;
+  document.getElementById('resetUserId').value = id;
+  document.getElementById('resetPasswordSub').textContent = t('teachers.resetSub', { email: p.email });
+  document.getElementById('resetPassword').value = generatePassword();
+  openSheet('sheetResetPassword');
+}
+function resetResetPasswordForm() {
+  resetPasswordUserId = null;
+  document.getElementById('resetPasswordForm').reset();
+  document.getElementById('resetUserId').value = '';
+}
+async function submitResetPassword(e) {
+  e.preventDefault();
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
+  const id = document.getElementById('resetUserId').value || resetPasswordUserId;
+  const password = document.getElementById('resetPassword').value;
+  if (!id) return;
+  if (!password || password.length < 8) { toast(t('auth.passwordShort'), true); return; }
+  const btn = e.target.querySelector('button[type="submit"]');
+  await withBusy(btn, async () => {
+    try {
+      await Data.invokeAdminTeachers('reset_password', { user_id: id, password });
+      toast(t('toast.passwordReset'));
+      resetResetPasswordForm();
+      closeSheet('sheetResetPassword');
+    } catch (err) { showError(err); }
+  });
+}
+async function requestSignOut() {
+  if (!(await askConfirm(t('confirm.signOutMsg'), { okText: t('account.logout'), iconName: 'logout' }))) return;
+  await AppAuth.signOut();
+  toast(t('toast.signedOut'));
+}
+function openAccountSheet() {
+  updateAccountUI();
+  openSheet('sheetAccount');
+}
+
 
 /* ---------- i18n ---------- */
 function t(key, vars) {
@@ -448,7 +1220,11 @@ function applyStaticI18n() {
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
   document.documentElement.lang = settings.lang;
   document.title = t('app.title');
-  document.querySelectorAll('#langSeg button').forEach(b => b.classList.toggle('active', b.dataset.lang === settings.lang));
+  document.querySelectorAll('#langSeg button, #authLangSeg button').forEach(b => b.classList.toggle('active', b.dataset.lang === settings.lang));
+  const live = document.getElementById('liveLabel');
+  if (live) live.textContent = t(realtimeLive ? 'home.liveOn' : 'home.liveOff');
+  const liveWrap = document.getElementById('liveIndicator');
+  if (liveWrap) liveWrap.classList.toggle('offline', !realtimeLive);
 }
 function groupName(g) { return settings.lang === 'bn' ? `${GROUPS[g].label} (${GROUPS[g].bn})` : GROUPS[g].label; }
 
@@ -472,6 +1248,7 @@ const schoolById = id => schools.find(s => s.id === id) || null;
 const studentById = id => students.find(s => s.id === id) || null;
 const eventById = id => events.find(e => e.id === id) || null;
 const gameById = id => games.find(g => g.id === id) || null;
+const profileById = id => profiles.find(p => p.id === id) || null;
 const gamesOfEvent = eid => games.filter(g => g.eventId === eid);
 const entriesOfGame = gid => entries.filter(e => e.gameId === gid);
 const entriesOfStudent = sid => entries.filter(e => e.studentId === sid);
@@ -555,6 +1332,18 @@ function eventMedalTally(eventId) {
    NAVIGATION
    ========================================================= */
 function showScreen(name) {
+  if (name === 'teachers' && !isAdminUser()) {
+    toast(t('toast.noPermission'), true);
+    name = 'home';
+  }
+  if (name === 'schools' && !isAdminUser() && !isTeacherUser()) {
+    toast(t('toast.noPermission'), true);
+    name = 'home';
+  }
+  if (name === 'settings' && !isAdminUser() && !isTeacherUser()) {
+    toast(t('toast.noPermission'), true);
+    name = 'home';
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
   const navTarget = NAV_FOR[name] || name;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.screen === navTarget));
@@ -566,10 +1355,16 @@ function showScreen(name) {
   document.getElementById('appBarEyebrow').textContent = t(EYEBROW[name] || 'app.eyebrow');
 
   document.getElementById('btnBack').hidden = !SECONDARY.includes(name);
-  document.getElementById('fab').hidden = !['students', 'events', 'eventDetail', 'schools'].includes(name);
+  updateFabVisibility();
   currentScreen = name;
   renderForScreen(name);
   document.getElementById('appContent').scrollTop = 0;
+}
+function updateFabVisibility() {
+  const fab = document.getElementById('fab');
+  if (!fab) return;
+  const admin = isAdminUser();
+  fab.hidden = !(currentScreen === 'students' || (admin && ['events', 'eventDetail', 'schools', 'teachers'].includes(currentScreen)));
 }
 function renderForScreen(name) {
   if (name === 'home') renderHome();
@@ -578,6 +1373,7 @@ function renderForScreen(name) {
   else if (name === 'eventDetail') renderEventDetail();
   else if (name === 'results') renderResultsTab();
   else if (name === 'schools') renderSchools();
+  else if (name === 'teachers') renderTeachers();
   else if (name === 'report') renderReport();
   else if (name === 'winners') renderWinners();
   else if (name === 'records') renderRecords();
@@ -629,7 +1425,7 @@ function renderSchools() {
         <div class="avatar school">${icon('school')}</div>
         <div class="pcard-info"><div class="pcard-name">${esc(s.name)}</div>
           <div class="pcard-sub">${esc(s.principal || '—')} · ${esc(s.mobile || '—')}</div></div>
-        <div class="pcard-actions">
+        <div class="pcard-actions" data-admin-only>
           <button class="icon-btn edit" data-action="edit" data-id="${s.id}" aria-label="${t('common.edit')}" title="${t('common.edit')}">${icon('edit')}</button>
           <button class="icon-btn danger" data-action="delete" data-id="${s.id}" aria-label="${t('common.delete')}" title="${t('common.delete')}">${icon('trash')}</button>
         </div>
@@ -653,6 +1449,7 @@ function refreshSchoolSelects() {
 }
 function resetSchoolForm() { editingSchool = null; document.getElementById('schoolForm').reset(); document.getElementById('schoolEditId').value = ''; }
 function openSchoolSheet(id) {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   if (id) {
     const s = schoolById(id); if (!s) return;
     editingSchool = id;
@@ -664,25 +1461,32 @@ function openSchoolSheet(id) {
   } else { resetSchoolForm(); document.getElementById('sheetSchoolTitle').textContent = t('schools.addTitle'); }
   openSheet('sheetSchool');
 }
-function submitSchool(e) {
+async function submitSchool(e) {
   e.preventDefault();
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   const name = document.getElementById('schoolName').value.trim(); if (!name) return;
   const data = { name, principal: document.getElementById('schoolPrincipal').value.trim(), mobile: document.getElementById('schoolMobile').value.trim() };
-  if (editingSchool) { const i = schools.findIndex(s => s.id === editingSchool); if (i > -1) schools[i] = { ...schools[i], ...data }; toast(t('toast.schoolUpdated')); }
-  else { schools.push({ id: uid(), ...data }); toast(t('toast.schoolAdded')); }
-  saveAll(); resetSchoolForm(); closeSheet('sheetSchool'); refreshSchoolSelects(); renderSchools(); renderHome();
+  const btn = e.target.querySelector('button[type="submit"]');
+  await withBusy(btn, async () => {
+    try {
+      if (editingSchool) { await Data.updateSchool(editingSchool, data); toast(t('toast.schoolUpdated')); }
+      else { await Data.createSchool(data); toast(t('toast.schoolAdded')); }
+      resetSchoolForm(); closeSheet('sheetSchool');
+      await refreshWorkspace({ silent: true });
+    } catch (err) { showError(err); }
+  });
 }
 async function deleteSchool(id) {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   const s = schoolById(id); if (!s) return;
   const studs = students.filter(x => x.schoolId === id);
   const msg = studs.length ? t('confirm.schoolDeleteWithStudents', { name: s.name, n: studs.length }) : t('confirm.schoolDelete', { name: s.name });
   if (!(await askConfirm(msg, { okText: t('common.delete') }))) return;
-  const ids = new Set(studs.map(x => x.id));
-  schools = schools.filter(x => x.id !== id);
-  students = students.filter(x => x.schoolId !== id);
-  entries = entries.filter(e => !ids.has(e.studentId));
-  saveAll(); refreshSchoolSelects(); renderSchools(); renderHome();
-  toast(t('toast.schoolDeleted'));
+  try {
+    await Data.deleteSchool(id);
+    toast(t('toast.schoolDeleted'));
+    await refreshWorkspace({ silent: true });
+  } catch (err) { showError(err); }
 }
 
 /* =========================================================
@@ -696,7 +1500,17 @@ function renderGroupHint() {
   if (g) { hint.className = 'group-hint ok'; hint.innerHTML = `${t('students.groupHintOk')} <span class="badge">${groupName(g)}</span> — ${t('students.groupRange')}: ${GROUPS[g].range}`; }
   else { hint.className = 'group-hint warn'; hint.innerHTML = t('students.groupHintWarn'); }
 }
-function refreshStudentIdPreview() { if (!editingStudent) document.getElementById('stStudentId').value = nextStudentId(); }
+function refreshStudentIdPreview() {
+  const el = document.getElementById('stStudentId');
+  if (!el) return;
+  if (editingStudent) {
+    const s = studentById(editingStudent);
+    el.value = s ? s.studentId || '' : '';
+  } else {
+    el.value = '';
+    el.placeholder = t('common.auto');
+  }
+}
 function updateChestSuggestion() {
   if (editingStudent) return;
   const sid = document.getElementById('stSchool').value;
@@ -709,8 +1523,18 @@ function resetStudentForm() {
   renderGroupHint(); refreshStudentIdPreview(); updateChestSuggestion();
 }
 function openStudentSheet(id) {
-  if (!schools.length) { toast(t('students.noSchool'), true); showScreen('schools'); return; }
+  if (id && !canEditStudent(studentById(id))) { toast(t('toast.noPermission'), true); return; }
+  if (!isAdminUser() && !isTeacherUser()) { toast(t('toast.noPermission'), true); return; }
+  if (!schools.length) { toast(t('students.noSchool'), true); if (isAdminUser()) showScreen('schools'); return; }
   refreshSchoolSelects();
+  const schoolSel = document.getElementById('stSchool');
+  if (isTeacherUser()) {
+    if (!ownSchoolId()) { toast(t('students.noSchool'), true); return; }
+    schoolSel.value = ownSchoolId();
+    schoolSel.disabled = true;
+  } else {
+    schoolSel.disabled = false;
+  }
   if (id) {
     const s = studentById(id); if (!s) return;
     editingStudent = id;
@@ -725,11 +1549,16 @@ function openStudentSheet(id) {
     renderGroupHint();
     document.getElementById('sheetStudentTitle').textContent = t('students.editTitle');
   } else { resetStudentForm(); document.getElementById('sheetStudentTitle').textContent = t('students.addTitle'); }
+  if (isTeacherUser()) {
+    document.getElementById('stSchool').value = ownSchoolId();
+    document.getElementById('stSchool').disabled = true;
+  }
   openSheet('sheetStudent');
 }
-function submitStudent(e) {
+async function submitStudent(e) {
   e.preventDefault();
-  const schoolId = document.getElementById('stSchool').value;
+  const teacher = isTeacherUser();
+  const schoolId = teacher ? ownSchoolId() : document.getElementById('stSchool').value;
   const name = document.getElementById('stName').value.trim();
   const dob = document.getElementById('stDob').value;
   if (!schoolId) { toast(t('toast.needSchool'), true); return; }
@@ -738,42 +1567,37 @@ function submitStudent(e) {
   const group = groupForDob(dob);
   if (!group) { toast(t('toast.badDob'), true); return; }
 
-  const wasEditing = !!editingStudent;
-  let studentId;
-  if (wasEditing) { const ex = studentById(editingStudent); studentId = ex ? ex.studentId : nextStudentId(); }
-  else studentId = nextStudentId();
+  if (editingStudent && !canEditStudent(studentById(editingStudent))) {
+    toast(t('toast.noPermission'), true); return;
+  }
 
   const data = {
-    schoolId, studentId, chestNo: document.getElementById('stChestNo').value.trim(),
-    name, dob, fatherName: document.getElementById('stFather').value.trim(),
-    gender: document.getElementById('stGender').value, group,
+    schoolId,
+    chestNo: document.getElementById('stChestNo').value.trim(),
+    name,
+    dob,
+    fatherName: document.getElementById('stFather').value.trim(),
+    gender: document.getElementById('stGender').value,
   };
-  if (wasEditing) {
-    const i = students.findIndex(s => s.id === editingStudent);
-    if (i > -1) {
-      const prev = students[i];
-      students[i] = { ...prev, ...data };
-      // drop entries whose game group no longer matches
-      if (prev.group !== group) {
-        entries = entries.filter(en => {
-          if (en.studentId !== editingStudent) return true;
-          const g = gameById(en.gameId);
-          return g && g.group === group;
-        });
-      }
-    }
-    toast(t('toast.studentUpdated'));
-  } else { students.push({ id: uid(), ...data }); toast(t('toast.studentAdded')); }
-  saveAll(); resetStudentForm(); closeSheet('sheetStudent');
-  renderStudents(); renderHome();
+  const btn = e.target.querySelector('button[type="submit"]');
+  await withBusy(btn, async () => {
+    try {
+      if (editingStudent) { await Data.updateStudent(editingStudent, data); toast(t('toast.studentUpdated')); }
+      else { await Data.createStudent(data); toast(t('toast.studentAdded')); }
+      resetStudentForm(); closeSheet('sheetStudent');
+      await refreshWorkspace({ silent: true });
+    } catch (err) { showError(err); }
+  });
 }
 async function deleteStudent(id) {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   const s = studentById(id); if (!s) return;
   if (!(await askConfirm(t('confirm.studentDelete', { name: s.name }), { okText: t('common.delete') }))) return;
-  students = students.filter(x => x.id !== id);
-  entries = entries.filter(e => e.studentId !== id);
-  saveAll(); renderStudents(); renderHome();
-  toast(t('toast.studentDeleted'));
+  try {
+    await Data.deleteStudent(id);
+    toast(t('toast.studentDeleted'));
+    await refreshWorkspace({ silent: true });
+  } catch (err) { showError(err); }
 }
 function renderStudents() {
   const list = students.filter(s => {
@@ -803,8 +1627,8 @@ function renderStudents() {
           <div class="pcard-sub"><span class="id-code">${esc(s.studentId || '—')}</span> · Chest ${esc(s.chestNo || '—')} · ${esc(sc ? sc.name : '—')}</div>
         </div>
         <div class="pcard-actions">
-          <button class="icon-btn edit" data-action="edit" data-id="${s.id}" aria-label="${t('common.edit')}" title="${t('common.edit')}">${icon('edit')}</button>
-          <button class="icon-btn danger" data-action="delete" data-id="${s.id}" aria-label="${t('common.delete')}" title="${t('common.delete')}">${icon('trash')}</button>
+          ${canEditStudent(s) ? `<button class="icon-btn edit" data-action="edit" data-id="${s.id}" aria-label="${t('common.edit')}" title="${t('common.edit')}">${icon('edit')}</button>` : ''}
+          ${isAdminUser() ? `<button class="icon-btn danger" data-action="delete" data-id="${s.id}" aria-label="${t('common.delete')}" title="${t('common.delete')}">${icon('trash')}</button>` : ''}
         </div>
       </div>
       <div class="pcard-tags">${groupPill}<span class="pill ${s.gender}">${s.gender === 'girls' ? 'GIRLS' : 'BOYS'}</span>
@@ -1093,7 +1917,7 @@ function renderEvents() {
           ${!gs.length ? `<span class="pill none">${t('events.noGames')}</span>` : hasResults ? `<span class="pill ok-pill">${t('events.hasResults')}</span>` : ''}
         </div>
       </div>
-      <div class="pcard-actions">
+      <div class="pcard-actions" data-admin-only>
         <button class="icon-btn edit" data-action="edit" data-id="${ev.id}" aria-label="${t('common.edit')}" title="${t('common.edit')}">${icon('edit')}</button>
         <button class="icon-btn danger" data-action="delete" data-id="${ev.id}" aria-label="${t('common.delete')}" title="${t('common.delete')}">${icon('trash')}</button>
       </div>
@@ -1102,6 +1926,7 @@ function renderEvents() {
 }
 function resetEventForm() { editingEvent = null; document.getElementById('eventForm').reset(); document.getElementById('eventEditId').value = ''; }
 function openEventSheet(id) {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   if (id) {
     const ev = eventById(id); if (!ev) return;
     editingEvent = id;
@@ -1113,26 +1938,33 @@ function openEventSheet(id) {
   } else { resetEventForm(); document.getElementById('sheetEventTitle').textContent = t('events.addTitle'); }
   openSheet('sheetEvent');
 }
-function submitEvent(e) {
+async function submitEvent(e) {
   e.preventDefault();
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   const name = document.getElementById('evName').value.trim();
   if (!name) { toast(t('toast.needEventName'), true); return; }
   const data = { name, date: document.getElementById('evDate').value, note: document.getElementById('evNote').value.trim() };
-  if (editingEvent) { const i = events.findIndex(x => x.id === editingEvent); if (i > -1) events[i] = { ...events[i], ...data }; toast(t('toast.eventUpdated')); }
-  else { events.push({ id: uid(), ...data }); toast(t('toast.eventAdded')); }
-  saveAll(); resetEventForm(); closeSheet('sheetEvent'); renderEvents(); renderHome();
+  const btn = e.target.querySelector('button[type="submit"]');
+  await withBusy(btn, async () => {
+    try {
+      if (editingEvent) { await Data.updateEvent(editingEvent, data); toast(t('toast.eventUpdated')); }
+      else { await Data.createEvent(data); toast(t('toast.eventAdded')); }
+      resetEventForm(); closeSheet('sheetEvent');
+      await refreshWorkspace({ silent: true });
+    } catch (err) { showError(err); }
+  });
 }
 async function deleteEvent(id) {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   const ev = eventById(id); if (!ev) return;
   const gs = gamesOfEvent(id);
   const msg = gs.length ? t('confirm.eventDeleteWithGames', { name: ev.name, n: gs.length }) : t('confirm.eventDelete', { name: ev.name });
   if (!(await askConfirm(msg, { okText: t('common.delete') }))) return;
-  const gids = new Set(gs.map(g => g.id));
-  events = events.filter(x => x.id !== id);
-  games = games.filter(g => g.eventId !== id);
-  entries = entries.filter(e => !gids.has(e.gameId));
-  saveAll(); renderEvents(); renderHome();
-  toast(t('toast.eventDeleted'));
+  try {
+    await Data.deleteEvent(id);
+    toast(t('toast.eventDeleted'));
+    await refreshWorkspace({ silent: true });
+  } catch (err) { showError(err); }
 }
 function openEvent(id) { openEventId = id; showScreen('eventDetail'); }
 
@@ -1178,9 +2010,9 @@ function renderEventDetail() {
         ${winnerLine}
         <div class="game-tools">
           <button class="game-tool records" data-action="records" data-id="${gm.id}">${icon('list')}<span>${t('eventDetail.recordsShort')}</span></button>
-          <button class="game-tool" data-action="assign" data-id="${gm.id}">${icon('users')}<span>${t('eventDetail.assignShort')}</span></button>
-          <button class="game-tool" data-action="edit" data-id="${gm.id}">${icon('edit')}<span>${t('eventDetail.editShort')}</span></button>
-          <button class="game-tool danger" data-action="delete" data-id="${gm.id}">${icon('trash')}<span>${t('eventDetail.deleteShort')}</span></button>
+          <button class="game-tool" data-action="assign" data-id="${gm.id}" data-admin-only>${icon('users')}<span>${t('eventDetail.assignShort')}</span></button>
+          <button class="game-tool" data-action="edit" data-id="${gm.id}" data-admin-only>${icon('edit')}<span>${t('eventDetail.editShort')}</span></button>
+          <button class="game-tool danger" data-action="delete" data-id="${gm.id}" data-admin-only>${icon('trash')}<span>${t('eventDetail.deleteShort')}</span></button>
         </div>
       </div>`;
     });
@@ -1196,6 +2028,7 @@ function renderQuickPicks() {
 }
 function resetGameForm() { editingGame = null; document.getElementById('gameForm').reset(); document.getElementById('gameEditId').value = ''; }
 function openGameSheet(eventId, gameId) {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   document.getElementById('gameEventId').value = eventId;
   if (gameId) {
     const gm = gameById(gameId); if (!gm) return;
@@ -1213,8 +2046,9 @@ function openGameSheet(eventId, gameId) {
   renderQuickPicks();
   openSheet('sheetGame');
 }
-function submitGame(e) {
+async function submitGame(e) {
   e.preventDefault();
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   const eventId = document.getElementById('gameEventId').value;
   const name = document.getElementById('gmName').value.trim();
   const group = document.getElementById('gmGroup').value;
@@ -1222,39 +2056,34 @@ function submitGame(e) {
   if (!name) { toast(t('toast.needGameName'), true); return; }
   const dup = games.find(g => g.eventId === eventId && g.group === group && g.name.toLowerCase() === name.toLowerCase() && g.id !== editingGame);
   if (dup) { toast(t('toast.gameDup'), true); return; }
-  if (editingGame) {
-    const i = games.findIndex(g => g.id === editingGame);
-    if (i > -1) {
-      const old = games[i];
-      // if group changed, drop entries of students no longer eligible
-      if (old.group !== group) {
-        entries = entries.filter(en => {
-          if (en.gameId !== editingGame) return true;
-          const s = studentById(en.studentId);
-          return s && s.group === group;
-        });
-      }
-      games[i] = { ...old, name, group, metric };
-    }
-    toast(t('toast.gameUpdated'));
-  } else { games.push({ id: uid(), eventId, name, group, metric }); toast(t('toast.gameAdded')); }
-  saveAll(); resetGameForm(); closeSheet('sheetGame'); renderEventDetail(); renderHome();
+  const btn = e.target.querySelector('button[type="submit"]');
+  await withBusy(btn, async () => {
+    try {
+      if (editingGame) { await Data.updateGame(editingGame, { name, group, metric }); toast(t('toast.gameUpdated')); }
+      else { await Data.createGame({ eventId, name, group, metric }); toast(t('toast.gameAdded')); }
+      resetGameForm(); closeSheet('sheetGame');
+      await refreshWorkspace({ silent: true });
+    } catch (err) { showError(err); }
+  });
 }
 async function deleteGame(id) {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   const gm = gameById(id); if (!gm) return;
   const count = entriesOfGame(id).length;
   const msg = count ? t('confirm.gameDeleteWithEntries', { name: gm.name, n: count }) : t('confirm.gameDelete', { name: gm.name });
   if (!(await askConfirm(msg, { okText: t('common.delete') }))) return;
-  games = games.filter(g => g.id !== id);
-  entries = entries.filter(e => e.gameId !== id);
-  saveAll(); renderEventDetail(); renderHome();
-  toast(t('toast.gameDeleted'));
+  try {
+    await Data.deleteGame(id);
+    toast(t('toast.gameDeleted'));
+    await refreshWorkspace({ silent: true });
+  } catch (err) { showError(err); }
 }
 
 /* =========================================================
    ASSIGN
    ========================================================= */
 function openAssign(gameId) {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   const gm = gameById(gameId); if (!gm) return;
   const ev = eventById(gm.eventId);
   document.getElementById('assignGameId').value = gameId;
@@ -1262,8 +2091,18 @@ function openAssign(gameId) {
   document.getElementById('assignMeta').textContent = t('assign.meta', { game: gm.name, group: groupName(gm.group), event: ev ? ev.name : '' });
   document.getElementById('assignSearch').value = '';
   refreshSchoolSelects();
-  document.getElementById('assignSchoolFilter').value = '';
-  assignSelected = new Set(entriesOfGame(gameId).map(e => e.studentId));
+  const af = document.getElementById('assignSchoolFilter');
+  if (isTeacherUser()) {
+    af.value = ownSchoolId() || '';
+    af.disabled = true;
+  } else {
+    af.value = '';
+    af.disabled = false;
+  }
+  const own = isTeacherUser() ? ownSchoolId() : null;
+  assignSelected = new Set(entriesOfGame(gameId)
+    .filter(e => !own || (studentById(e.studentId) || {}).schoolId === own)
+    .map(e => e.studentId));
   renderAssignList();
   openSheet('sheetAssign');
 }
@@ -1272,9 +2111,12 @@ function renderAssignList() {
   const gm = gameById(gameId); if (!gm) return;
   const search = document.getElementById('assignSearch').value.trim().toLowerCase();
   const schoolF = document.getElementById('assignSchoolFilter').value;
+  const teacher = isTeacherUser();
+  const own = ownSchoolId();
   const eligible = students.filter(s => {
     if (s.group !== gm.group) return false;
-    if (schoolF && s.schoolId !== schoolF) return false;
+    if (teacher && s.schoolId !== own) return false;
+    if (!teacher && schoolF && s.schoolId !== schoolF) return false;
     if (search) { const hay = `${s.name} ${s.studentId || ''} ${s.chestNo || ''}`.toLowerCase(); if (!hay.includes(search)) return false; }
     return true;
   });
@@ -1325,20 +2167,19 @@ function toggleAssignAll() {
   });
   updateAssignCount(); updateToggleAllLabel();
 }
-function saveAssign() {
+async function saveAssign() {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   const gameId = document.getElementById('assignGameId').value;
   const gm = gameById(gameId); if (!gm) return;
-  const existing = entriesOfGame(gameId);
-  const existingIds = new Set(existing.map(e => e.studentId));
-  // add new
-  assignSelected.forEach(sid => {
-    if (!existingIds.has(sid)) entries.push({ id: uid(), gameId, studentId: sid, score: '', position: null });
+  const btn = document.getElementById('btnSaveAssign');
+  await withBusy(btn, async () => {
+    try {
+      await Data.assignStudents(gameId, [...assignSelected]);
+      closeSheet('sheetAssign');
+      toast(t('assign.saved'));
+      await refreshWorkspace({ silent: true });
+    } catch (err) { showError(err); }
   });
-  // remove unchecked
-  entries = entries.filter(e => e.gameId !== gameId || assignSelected.has(e.studentId));
-  saveAll(); closeSheet('sheetAssign');
-  renderEventDetail(); renderHome();
-  toast(t('assign.saved'));
 }
 
 /* =========================================================
@@ -1503,6 +2344,7 @@ function renderRecords() {
   if (!gm) { area.innerHTML = `<p class="empty">${t('records.noEntries')}</p>`; return; }
   const metric = gameMetric(gm);
   const ev = eventById(gm.eventId);
+  const readOnly = !isAdminUser();
   const ents = entriesOfGame(gid).map(en => ({ en, s: studentById(en.studentId) })).filter(x => x.s);
   const rankSource = metric === 'manual'
     ? manualRanks(ents.map(x => ({ id: x.en.id, score: x.en.score || (x.en.position != null ? x.en.position : ''), dnf: x.en.dnf })))
@@ -1528,6 +2370,7 @@ function renderRecords() {
     </div>
   </div>
   <p class="screen-desc">${t('records.sub')}</p>
+  ${readOnly ? `<p class="readonly-note">${icon('info')}<span>${t('records.readOnly')}</span></p>` : ''}
   </aside>
   <div class="rec-main">
   <div class="rec-toolbar">
@@ -1563,15 +2406,15 @@ function renderRecords() {
       if (rawScore.includes(':')) { const parts = rawScore.split(':'); mm = parts[0] || ''; ss = parts[1] || ''; }
       else ss = rawScore;
       inputHtml = `<div class="score-shell"><div class="time-parts">
-        <input class="rec-mm" inputmode="decimal" value="${esc(mm)}" placeholder="${t('metric.min')}">
+        <input class="rec-mm" inputmode="decimal" value="${esc(mm)}" placeholder="${t('metric.min')}" ${readOnly ? 'disabled' : ''}>
         <span class="time-sep">:</span>
-        <input class="rec-ss" inputmode="decimal" value="${esc(ss)}" placeholder="${t('metric.sec')}">
+        <input class="rec-ss" inputmode="decimal" value="${esc(ss)}" placeholder="${t('metric.sec')}" ${readOnly ? 'disabled' : ''}>
       </div></div>`;
     } else if (metric === 'manual') {
-      inputHtml = `<div class="score-shell"><input class="rec-score" type="number" min="1" value="${esc(en.score || (en.position != null ? en.position : ''))}" placeholder="${t('records.posPh')}"><span class="score-suffix">${t('records.posSuffix')}</span></div>`;
+      inputHtml = `<div class="score-shell"><input class="rec-score" type="number" min="1" value="${esc(en.score || (en.position != null ? en.position : ''))}" placeholder="${t('records.posPh')}" ${readOnly ? 'disabled' : ''}><span class="score-suffix">${t('records.posSuffix')}</span></div>`;
     } else {
       const suffix = metric === 'points' ? 'PTS' : 'M';
-      inputHtml = `<div class="score-shell"><input class="rec-score" inputmode="decimal" value="${esc(en.score || '')}" placeholder="${scorePlaceholder(metric)}"><span class="score-suffix">${suffix}</span></div>`;
+      inputHtml = `<div class="score-shell"><input class="rec-score" inputmode="decimal" value="${esc(en.score || '')}" placeholder="${scorePlaceholder(metric)}" ${readOnly ? 'disabled' : ''}><span class="score-suffix">${suffix}</span></div>`;
     }
     html += `<div class="rec-row" data-eid="${en.id}">
       <div class="rec-row-top">
@@ -1582,17 +2425,19 @@ function renderRecords() {
       </div>
       <div class="rec-inputs">
         ${inputHtml}
-        <label class="rec-dnf"><input type="checkbox" class="rec-dnf-cb" ${en.dnf ? 'checked' : ''}><span class="switch-track"></span><span>${t('records.dnf')}</span></label>
+        ${readOnly ? (en.dnf ? `<span class="pill none">DNF</span>` : '') : `<label class="rec-dnf"><input type="checkbox" class="rec-dnf-cb" ${en.dnf ? 'checked' : ''}><span class="switch-track"></span><span>${t('records.dnf')}</span></label>`}
       </div>
     </div>`;
   });
   html += `</div>`;
 
-  html += `<div class="rec-save-bar">
-    <button class="btn" id="btnSaveRecords">${icon('check')}<span>${t('common.save')}</span></button>
-    <div class="save-note">${t('records.saveNote')}</div>
-  </div>
-  </div></div>`;
+  if (!readOnly) {
+    html += `<div class="rec-save-bar">
+      <button class="btn" id="btnSaveRecords">${icon('check')}<span>${t('common.save')}</span></button>
+      <div class="save-note">${t('records.saveNote')}</div>
+    </div>`;
+  }
+  html += `</div></div>`;
   area.innerHTML = html;
 }
 
@@ -1645,29 +2490,20 @@ function sortRecordsDom() {
   applyRecordsPreview();
 }
 
-function saveRecords() {
+async function saveRecords() {
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
   const gid = document.getElementById('recordsGameId').value;
   const gm = gameById(gid); if (!gm) return;
   const metric = gameMetric(gm);
-  const { rows, items } = readRecordsItems(metric);
-  const ranks = metric === 'manual' ? manualRanks(items) : rankEntries(metric, items);
-  rows.forEach(row => {
-    const en = entries.find(e => e.id === row.dataset.eid); if (!en) return;
-    const item = items.find(x => x.id === row.dataset.eid);
-    en.dnf = item.dnf;
-    en.score = item.score;
-    if (metric === 'manual') {
-      const p = parseInt(item.score, 10);
-      en.position = (!item.dnf && !isNaN(p) && p > 0) ? p : null;
-    } else {
-      en.position = item.dnf ? null : (ranks[en.id] != null ? ranks[en.id] : null);
-    }
+  const { items } = readRecordsItems(metric);
+  const btn = document.getElementById('btnSaveRecords');
+  await withBusy(btn, async () => {
+    try {
+      await Data.saveGameEntries(gid, items);
+      toast(t('records.saved'));
+      await refreshWorkspace({ silent: true });
+    } catch (err) { showError(err); }
   });
-  saveAll();
-  toast(t('records.saved'));
-  renderRecords();
-  renderHome();
-  renderEventDetail();
 }
 
 function openResultsForGame(gameId) {
@@ -1860,41 +2696,51 @@ function closeConfirm(value) {
 }
 
 /* =========================================================
-   BACKUP / RESTORE
+   DATA EXPORT
    ========================================================= */
 function exportBackup() {
-  const data = { app: 'sports-app', version: 2, exportedAt: new Date().toISOString(), settings, schools, students, events, games, entries };
+  if (!isAdminUser()) { toast(t('toast.noPermission'), true); return; }
+  const data = {
+    app: 'sports-app',
+    version: 3,
+    exportedAt: new Date().toISOString(),
+    settings: { lang: settings.lang },
+    schools,
+    students,
+    events,
+    games,
+    entries,
+  };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `sports-app-backup-${new Date().toISOString().slice(0, 10)}.json`;
-  a.click(); URL.revokeObjectURL(url);
+  a.href = url;
+  a.download = `sports-app-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
   toast(t('toast.backupDownloaded'));
-}
-function importBackup(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async () => {
-    try {
-      const d = JSON.parse(reader.result);
-      if (!d || !Array.isArray(d.schools) || !Array.isArray(d.students) || !Array.isArray(d.events)) throw new Error('invalid');
-      if (!(await askConfirm(t('confirm.restore', { schools: d.schools.length, students: d.students.length, events: d.events.length }), { okText: t('common.confirm'), iconName: 'upload', danger: false }))) return;
-      schools = d.schools; students = d.students; events = d.events;
-      games = Array.isArray(d.games) ? d.games : [];
-      entries = Array.isArray(d.entries) ? d.entries : [];
-      if (d.settings && ['bn', 'en'].includes(d.settings.lang)) settings = d.settings;
-      saveAll(); applyStaticI18n(); refreshSchoolSelects(); showScreen(currentScreen);
-      toast(t('toast.backupRestored'));
-    } catch (err) { toast(t('toast.backupInvalid'), true); }
-  };
-  reader.readAsText(file);
 }
 
 /* ---------- Language ---------- */
-function changeLanguage(lang) {
+async function changeLanguage(lang) {
   if (!['bn', 'en'].includes(lang)) return;
-  settings.lang = lang; saveAll(); applyStaticI18n(); refreshSchoolSelects(); showScreen(currentScreen);
-  toast(t('toast.settingsSaved'));
+  settings.lang = lang;
+  localStorage.setItem(LANG_KEY, lang);
+  if (currentProfile && currentProfile.language !== lang) {
+    currentProfile.language = lang;
+    if (window.AppState) window.AppState.profile = currentProfile;
+    try {
+      await Data.updateProfile(currentProfile.id, { language: lang });
+    } catch (err) {
+      showError(err);
+    }
+  }
+  applyStaticI18n();
+  if (appBooted) {
+    refreshSchoolSelects();
+    renderForScreen(currentScreen);
+    updateAccountUI();
+  }
 }
 
 /* =========================================================
@@ -1904,7 +2750,9 @@ function init() {
   // nav
   document.querySelectorAll('.nav-item').forEach(n => n.addEventListener('click', () => showScreen(n.dataset.screen)));
   document.getElementById('btnBack').addEventListener('click', () => showScreen(BACK[currentScreen] || 'home'));
-  document.querySelectorAll('.menu-row').forEach(m => m.addEventListener('click', () => showScreen(m.dataset.screen)));
+  document.querySelectorAll('.menu-row[data-screen]').forEach(m => m.addEventListener('click', () => showScreen(m.dataset.screen)));
+  document.getElementById('btnAccount').addEventListener('click', openAccountSheet);
+  document.getElementById('btnAccountRow').addEventListener('click', openAccountSheet);
 
   // FAB
   document.getElementById('fab').addEventListener('click', () => {
@@ -1912,12 +2760,41 @@ function init() {
     else if (currentScreen === 'events') openEventSheet();
     else if (currentScreen === 'eventDetail') openGameSheet(openEventId);
     else if (currentScreen === 'schools') openSchoolSheet();
+    else if (currentScreen === 'teachers') openTeacherSheet();
   });
 
   // quick actions
   document.getElementById('qaAddStudent').addEventListener('click', () => openStudentSheet());
   document.getElementById('qaAddEvent').addEventListener('click', () => openEventSheet());
   document.getElementById('qaResults').addEventListener('click', () => showScreen('results'));
+
+  // teachers / account
+  document.getElementById('btnAddTeacher').addEventListener('click', () => openTeacherSheet());
+  document.getElementById('teacherRole').addEventListener('change', updateTeacherFormFields);
+  document.getElementById('btnGeneratePassword').addEventListener('click', () => {
+    document.getElementById('teacherPassword').value = generatePassword();
+  });
+  document.getElementById('btnGenerateResetPassword').addEventListener('click', () => {
+    document.getElementById('resetPassword').value = generatePassword();
+  });
+  document.getElementById('teacherForm').addEventListener('submit', submitTeacher);
+  document.getElementById('resetPasswordForm').addEventListener('submit', submitResetPassword);
+  document.getElementById('teacherList').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action]'); if (!btn) return;
+    if (btn.dataset.action === 'edit-teacher') openTeacherSheet(btn.dataset.id);
+    else if (btn.dataset.action === 'reset-password') openResetPasswordSheet(btn.dataset.id);
+    else if (btn.dataset.action === 'delete-teacher') deleteTeacher(btn.dataset.id);
+  });
+  document.getElementById('accountBody').addEventListener('click', e => {
+    if (e.target.closest('#btnChangePassword')) {
+      closeSheet('sheetAccount');
+      AppAuth.openChangePassword();
+    } else if (e.target.closest('#btnAccountSignOut')) {
+      requestSignOut();
+    }
+  });
+  document.getElementById('btnSettingsAccount').addEventListener('click', openAccountSheet);
+  document.getElementById('btnSettingsLogout').addEventListener('click', requestSignOut);
 
   // sheets close
   document.querySelectorAll('.sheet-close').forEach(b => b.addEventListener('click', () => closeSheet(b.dataset.close)));
@@ -2068,16 +2945,18 @@ function init() {
 
   // backup
   document.getElementById('btnExport').addEventListener('click', exportBackup);
-  document.getElementById('fileImport').addEventListener('change', e => { importBackup(e.target.files[0]); e.target.value = ''; });
 
   // language
-  document.querySelectorAll('#langSeg button').forEach(b => b.addEventListener('click', () => changeLanguage(b.dataset.lang)));
+  document.querySelectorAll('#langSeg button, #authLangSeg button').forEach(b => b.addEventListener('click', () => changeLanguage(b.dataset.lang)));
 
   // initial
   applyStaticI18n();
   refreshSchoolSelects();
-  saveAll();
   showScreen('home');
+  if (window.AppAuth) AppAuth.bootstrap();
+  else console.error('Auth module failed to load');
 }
 
+window.t = t;
+window.toast = toast;
 document.addEventListener('DOMContentLoaded', init);
